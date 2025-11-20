@@ -10,27 +10,25 @@ public partial class Bug : Node2D
 	[Export] public float walkSpeed = 0.1f;
 	private Vector2 pos = new(626, 324);
 	private Leg[] legs;
-	Vector2[] stepPoints;
 	private Vector2 orientation;
 	private Vector2 mousePos;
 
 	public override void _Ready()
 	{
 		mousePos = pos;
+		orientation = new Vector2(1, 1).Normalized();
 		legs = new Leg[legCount];
-		stepPoints = new Vector2[legCount];
 		for (int i = 0; i < legs.Length; i++)
 		{
-			var side = i % 2 == 0 ? new Vector2(1, 0) : new Vector2(-1, 0);
-			legs[i] = new Leg(pos, side, jointCount+1, distance, legSpeed);
+			var side = i % 2 == 0 ? 1 : -1;
+			
+			legs[i] = new Leg(pos, orientation, side, jointCount+1, distance, legSpeed);
 			legs[i].Recalculate();
 		}
-		orientation = new Vector2(0, -1);
-		StepCalc(40);
 	}
 	
 	double restTimer = 2;
-	double stepTimerL = 0.5;
+	double stepTimerL = 1;
 	double stepTimerR = 0;
 	
 	public override void _Process(double delta)
@@ -58,31 +56,29 @@ public partial class Bug : Node2D
 
 		if (restTimer <= 0)
 		{
-			stepTimerL =.5 ;
-			stepTimerR = 0;
-			StepCalc(100);
-			for (int i = 0; i < legs.Length; i++)
+			stepTimerL =2 ;
+			stepTimerR = 1;
+			foreach (var leg in legs)
 			{
-				var restStep = (stepPoints[i] - pos);
-				legs[i].triggerStep(pos + restStep*0.3f);
+				leg.triggerRest();
 			}
 		}
 		else {
-			StepCalc(40);
 			if (stepTimerL <= 0)
 			{
-				stepTimerL = 1;
-				legs[0].stepPos = stepPoints[0];
+				stepTimerL = 2;
+				legs[0].triggerStep();
 			}
 			else if (stepTimerR <= 0)
 			{
-				stepTimerR = 1;
-				legs[1].stepPos = stepPoints[1];
+				stepTimerR = 2;
+				legs[1].triggerStep();
 			}
 			
 			foreach (var leg in legs)
 			{
 				leg.pinPos = pos;
+				leg.orientation = orientation;
 				leg.Recalculate();
 			}
 			
@@ -93,25 +89,6 @@ public partial class Bug : Node2D
 		GetChild<Label>(1).Text = Math.Round(stepTimerR,2).ToString();
 		QueueRedraw();
 	}
-
-	void StepCalc(float offsetAngle)
-	{
-		for (int i = 0; i < legs.Length; i++)
-		{
-			// set point +/- 30° from orientation
-			var side = i % 2 == 0 ? 1 : -1;
-			var angle= orientation.Angle() + side*(Math.PI / 180 * offsetAngle);
-			
-			// adjust for Pi wrap
-			if (angle > Math.PI) angle -= 2 * Math.PI;
-			if (angle < -Math.PI) angle += 2 * Math.PI;
-			
-			var x = (float)(distance*jointCount * Math.Cos(angle));
-			var y = (float)(distance*jointCount * Math.Sin(angle));
-			stepPoints[i] = pos + new Vector2(x,y);
-		}
-		
-	}
 	
 	public override void _Draw()
 	{
@@ -121,13 +98,13 @@ public partial class Bug : Node2D
 		var a = new Vector2(10, 10);
 		var b = new Vector2(-10, 10);
 		
-		// step X
-		for (var i=0; i<stepPoints.Length; i++)
-		{
-			var color = i>0? Colors.CornflowerBlue : Colors.DarkCyan;
-			DrawLine(stepPoints[i]-a/2, stepPoints[i]+a/2, color, 1, true);
-			DrawLine(stepPoints[i]+b/2, stepPoints[i]-b/2, color, 1, true);
-		}
+		// // step X
+		// for (var i=0; i<stepPoints.Length; i++)
+		// {
+		// 	var color = i>0? Colors.CornflowerBlue : Colors.DarkCyan;
+		// 	DrawLine(stepPoints[i]-a/2, stepPoints[i]+a/2, color, 1, true);
+		// 	DrawLine(stepPoints[i]+b/2, stepPoints[i]-b/2, color, 1, true);
+		// }
 		
 		foreach (var leg in legs)
 		{

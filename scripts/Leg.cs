@@ -7,20 +7,29 @@ public partial class Leg : Node2D
 	public Dictionary<int, Vector2> points = new();
 	public Vector2 pinPos = new(626, 324);
 	public Vector2 footPos;
-	public Vector2 stepPos;
+	public Vector2 orientation;
+	public int side = 1;
 	[Export] public int count = 5;
 	[Export] public float distance = 20;
 	[Export] public float speed = 5;
-	private bool solo = false;
+	private bool solo;
 
-	public Leg(Vector2 pinPos, Vector2 direction, int count, float distance, float speed)
+	public Leg(Vector2 pinPos, Vector2 orientation, int side, int count, float distance, float speed)
 	{
 		this.pinPos = pinPos;
+		this.orientation = orientation;
+		this.side = side;
 		this.count = count;
 		this.distance = distance;
 		this.speed = speed;
 		var pos = pinPos;
 		
+		var angle= orientation.Angle() + side*(Math.PI/2);
+		// adjust for Pi wrap
+		if (angle > Math.PI) angle -= 2 * Math.PI;
+		if (angle < -Math.PI) angle += 2 * Math.PI;
+		var direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+			
 		for (int i = 0; i < count; i++)
 		{
 			points.Add(i, pos);
@@ -57,30 +66,62 @@ public partial class Leg : Node2D
 		if (Input.IsKeyPressed(Key.D)) pinPos.X++;
 		if (Input.IsKeyPressed(Key.A)) pinPos.X--;
 
-		if (Input.IsMouseButtonPressed(MouseButton.Left)) footPos = GetGlobalMousePosition();
+		if (Input.IsMouseButtonPressed(MouseButton.Left))
+		{
+			footPos = GetGlobalMousePosition();
+			step = false;
+			
+		}
 		
 		Recalculate();
 		QueueRedraw();
 
 	}
 
-	public void triggerStep(Vector2 step)
+	public void triggerStep()
 	{
-		stepPos = step;
-		footPos = step;
-		Recalculate();
+		// footPos = pinPos + StepCalc(30);
+		// Recalculate();
 	}
 
+	
+	public void triggerRest()
+	{
+		// footPos = pinPos + StepCalc(90);
+		// step = false;
+		// Recalculate();
+	}
+	
+	private Vector2 StepCalc(float offsetAngle)
+	{
+		// set point +/- 30° from orientation
+		var angle= orientation.Angle() + side*(Math.PI / 180 * offsetAngle);
+			
+		// adjust for Pi wrap
+		if (angle > Math.PI) angle -= 2 * Math.PI;
+		if (angle < -Math.PI) angle += 2 * Math.PI;
+			
+		var x = (float)(distance*(count-1) * Math.Cos(angle));
+		var y = (float)(distance*(count-1) * Math.Sin(angle));
+		return new Vector2(x,y);
+	}
+
+	private bool step = false;
+	
 	public void Recalculate()
 	{
-		// body has moved
-		var direction = (pinPos-points[0]).Normalized();
 		points[0] = pinPos;
 		
-		// set new footPos is range
+		// get new footPos when outta range + keep updating til foot reached it 
 		if ((footPos-pinPos).Length() > distance*(count-1))
 		{
-			footPos = stepPos;
+			footPos = pinPos + StepCalc(30);
+			step = true;
+		}
+
+		if (step && Math.Abs((points[count - 1]-footPos).Length()) > 5)
+		{
+			footPos = pinPos + StepCalc(30);
 		}
 		
 		for (var i = 1; i < points.Count; i++)
@@ -108,9 +149,9 @@ public partial class Leg : Node2D
 			if (i < points.Count - 1 && Math.Abs(dis) > 5)
 			{
 				// if joint points perfectly at foot pos, add manual side rotation
-				if ((pinPos-footPos).Normalized() == (points[i]-footPos).Normalized())
+				if ((pinPos-footPos).Normalized() - (points[i]-footPos).Normalized() < new Vector2(0.001f, 0.001f))
 				{
-					dif += (float)Math.PI;
+					dif -= (float)side/10;
 				}
 				newAngle = curAngle + Math.Clamp(dif, -speed, speed) * (dis < 0 ? -1 : 1);
 			}

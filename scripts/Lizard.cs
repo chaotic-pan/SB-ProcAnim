@@ -26,8 +26,9 @@ public partial class Lizard : Node2D
 
 		for (int i = 0; i < legs.Length; i++)
 		{
+			// TODO signature changed
 			legs[i] = new Leg(points[((int)Math.Floor((decimal)(i/2))+1)*3], 
-				i%2 == 0? new Vector2(0,1) : new Vector2(0,-1),3, 50, 0.1f);
+				i%2 == 0? new Vector2(0,1) : new Vector2(0,-1),3, 50, 0.1f, 1);
 			legs[i].Recalculate();
 		}
 	}
