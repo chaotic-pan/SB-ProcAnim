@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb3r1coo4aqwh"]
+
+[ext_resource type="Script" uid="uid://bfofqsgmyx02" path="res://scripts/Bug.cs" id="1_g6v7b"]
+
+[node name="Bug" type="Node2D"]
+script = ExtResource("1_g6v7b")
+legCount = 2
+jointCount = 2
+distance = 75.0
+legSpeed = 0.05
+walkSpeed = 1.0
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "0"
+
+[node name="Label2" type="Label" parent="."]
+offset_top = 27.0
+offset_right = 40.0
+offset_bottom = 50.0
+text = "1"

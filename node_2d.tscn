@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxfpb3prkqyq6"]
+
+[ext_resource type="PackedScene" uid="uid://bgiqlv2kr3ftq" path="res://Lizard.tscn" id="1_wtcfe"]
+[ext_resource type="PackedScene" uid="uid://bb3r1coo4aqwh" path="res://bug.tscn" id="2_epypp"]
+[ext_resource type="PackedScene" uid="uid://c4qtbwnfuswl0" path="res://leg.tscn" id="3_0hol4"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Lizard" parent="." instance=ExtResource("1_wtcfe")]
+visible = false
+
+[node name="Bug" parent="." instance=ExtResource("2_epypp")]
+
+[node name="Leg" parent="." instance=ExtResource("3_0hol4")]
+visible = true
