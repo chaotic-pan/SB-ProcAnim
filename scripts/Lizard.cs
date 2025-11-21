@@ -9,12 +9,16 @@ public partial class Lizard : Node2D
 	[Export] public int count = 5;
 	[Export] public float distance = 20;
 	[Export] public float speed = 5;
+	[Export] public Dictionary<int, int> legCounts = new();
+	[Export] public int jointCount;
+	[Export] public int jointDistance;
+	[Export] public float legSpeed;
 	[Export] public bool drawAsMesh = true;
 	[Export] public Curve sizeCurve = new();
 	[Export] public Color color = new(1, 1, 1);
 	[Export] public Gradient gradient = new();
 
-	private Leg[] legs = new Leg[1];
+	private Bug[] bugs;
 	public override void _Ready()
 	{
 		var pos = mousePos;
@@ -24,29 +28,39 @@ public partial class Lizard : Node2D
 			pos.X += distance;
 		}
 
-		for (int i = 0; i < legs.Length; i++)
+		bugs = new Bug[legCounts.Count];
+		var j = 0;
+		foreach (var bugPos in legCounts.Keys)
 		{
-			// TODO signature changed
-			legs[i] = new Leg(points[((int)Math.Floor((decimal)(i/2))+1)*3], 
-				i%2 == 0? new Vector2(0,1) : new Vector2(0,-1),3, 50, 0.1f, 1);
-			legs[i].Recalculate();
+			bugs[j] = new Bug(points[bugPos], (points[bugPos-1]-points[bugPos]).Normalized(), legCounts[bugPos], 
+				jointCount, jointDistance, legSpeed, speed);
+			// AddChild(bugs[j]);
+			j++;
 		}
 	}
 
 	public override void _Process(double delta)
 	{
-		if (Input.IsMouseButtonPressed(MouseButton.Left))
+		if (Input.IsMouseButtonPressed(MouseButton.Left)) mousePos = GetGlobalMousePosition();
+		
+		Recalculate();
+		var j = 0;
+		foreach (var bugPos in legCounts.Keys)
 		{
-			mousePos = GetGlobalMousePosition();
-			Recalculate();
-			QueueRedraw();
+			bugs[j].pinPos = points[bugPos];
+			bugs[j].orientation = (points[0] - points[bugPos]).Normalized();;
+			bugs[j].Recalculate();
+			j++;
 		}
+		QueueRedraw();
+		
 	}
 
 	private void Recalculate()
 	{
 		for (var i = 0; i < points.Count; i++)
 		{
+			// move towards mouse OR follow prev exactly
 			var prev = i == 0 ? mousePos : points[i - 1];
 
 			var dir = prev - points[i];
@@ -57,13 +71,13 @@ public partial class Lizard : Node2D
 			float x, y;
 			if (i < count-1)
 			{
-				var d = (prev - newPos).Dot(newPos - points[i + 1]);
+				var d = (prev - newPos).Normalized().Dot((newPos - points[i + 1]).Normalized());
 
-				if (d < 750)
+				if (Math.Abs(d) > 0.7)
 				{
-					var av = prev - points[i + 1];
-					newPos = i==0 ? points[0] + av.Normalized() * float.Min(dir.Length(), speed)
-						: prev + -av.Normalized() * distance;
+					// var av = prev - points[i + 1];
+					// newPos = i==0 ? points[0] + av.Normalized() * float.Min(dir.Length(), speed)
+					// 	: prev + -av.Normalized() * distance;
 				}
 			}
 
@@ -73,13 +87,6 @@ public partial class Lizard : Node2D
 
 	public override void _Draw()
 	{
-		for (int i = 0; i < legs.Length; i++)
-		{
-			legs[i].pinPos = points[((int)Math.Floor((decimal)(i/2))+1)*3];
-			legs[i].Recalculate();
-		}
-		
-
 		if (drawAsMesh) DrawPolygon();
 		else DrawCircles();
 		DrawLegs();
@@ -87,18 +94,35 @@ public partial class Lizard : Node2D
 
 	private void DrawLegs()
 	{
-		foreach (var leg in legs)
+		foreach (var bug in bugs)
 		{
-			for (var i = 1; i < leg.points.Count; i++)
+			// orientation
+			DrawLine(bug.pos, bug.pinPos+bug.orientation*30, Colors.DimGray, 1, true);
+			
+			var a = new Vector2(10, 10);
+			var b = new Vector2(-10, 10);
+			
+			foreach (var leg in bug.legs)
 			{
-				DrawLine(leg.points[i-1], leg.points[i], Colors.Black, 5, true);
-			}
-			for (var i = 1; i < leg.points.Count; i++)
-			{
-				DrawCircle(leg.points[i], 7, Colors.SteelBlue, true);
+				// foot X
+				DrawLine(leg.footPos-a, leg.footPos+a, Colors.DarkRed, 1, true);
+				DrawLine(leg.footPos+b, leg.footPos-b, Colors.DarkRed, 1, true);
+			
+				// leg
+				for (var i = 1; i < leg.points.Count; i++)
+				{
+					DrawLine(leg.points[i-1], leg.points[i], Colors.Black, 3, true);
+				}
+				// joint
+				for (var i = 1; i < leg.points.Count; i++)
+				{
+					DrawCircle(leg.points[i], 7, Colors.SteelBlue, true);
+				}
 			}
 		
-			DrawCircle(leg.points[0], 10, Colors.Blue, true);
+			// pin
+			DrawCircle(bug.pos, 10, Colors.DimGray, true);
+			DrawCircle(bug.pos, jointDistance * jointCount, new Color(.5f, .5f, .5f, .3f), false);
 		}
 	}
 

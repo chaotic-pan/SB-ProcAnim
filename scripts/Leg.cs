@@ -15,50 +15,47 @@ public partial class Leg : Node2D
 	private bool solo;
 	[Signal] public delegate void StartStepEventHandler(int side);
 	[Signal] public delegate void EndStepEventHandler(int side);
+	
+	public Leg()
+	{
+	}
 
 	public Leg(Vector2 pinPos, Vector2 orientation, int side, int count, float distance, float speed)
 	{
-		
 		this.pinPos = pinPos;
 		this.orientation = orientation;
 		this.side = side;
 		this.count = count;
 		this.distance = distance;
 		this.speed = speed;
-		var pos = pinPos;
 		
 		var angle= orientation.Angle() + side*(Math.PI/2);
 		// adjust for Pi wrap
 		if (angle > Math.PI) angle -= 2 * Math.PI;
 		if (angle < -Math.PI) angle += 2 * Math.PI;
 		var direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-			
-		for (int i = 0; i < count; i++)
-		{
-			points.Add(i, pos);
-			pos += direction*distance;
-		}
-
-		footPos = points[count - 2] + direction*(distance*0.5f);
+		
+		Init(direction);
 		Recalculate();
-	}
-
-	public Leg()
-	{
 	}
 
 	public override void _Ready()
 	{
 		count++;
 		solo = true;
+		Init(new Vector2(1,0));
+	}
+
+	private void Init(Vector2 direction)
+	{
 		var pos = pinPos;
 		for (int i = 0; i < count; i++)
 		{
 			points.Add(i, pos);
-			pos.X += distance;
+			pos += direction*distance;
 		}
 
-		footPos = pinPos + new Vector2(1,0)*(distance*(count-1))*0.75f;
+		footPos = pinPos + direction*distance*1.5f;
 	}
 	
 	public override void _Process(double delta)
@@ -120,14 +117,12 @@ public partial class Leg : Node2D
 		if ((footPos-pinPos).Length() > distance*(count-1))
 		{
 			footPos = pinPos + StepCalc(30);
-			// TODO pause other step
 			EmitSignal(SignalName.StartStep, side);
 			step = true;
 		}
 		// + keep updating til foot reached it 
 		if (step && Math.Abs((points[count - 1]-footPos).Length()) > 5)
 		{
-			// TODO cont other step
 			EmitSignal(SignalName.EndStep, side);
 			footPos = pinPos + StepCalc(30);
 		}

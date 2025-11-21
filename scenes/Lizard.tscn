@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bgiqlv2kr3ftq"]
 
-[ext_resource type="Script" uid="uid://cjlqcfyf6df6f" path="res://scripts/Lizard2D.cs" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://cjlqcfyf6df6f" path="res://scripts/Lizard.cs" id="1_wtcfe"]
 
 [sub_resource type="Curve" id="Curve_wtcfe"]
 _limits = [5.0, 30.0, 0.0, 1.0]
@@ -17,6 +17,13 @@ metadata/_snap_count = 12
 script = ExtResource("1_wtcfe")
 count = 15
 distance = 30.0
+speed = 2.0
+legCounts = Dictionary[int, int]({
+3: 2
+})
+jointCount = 2
+jointDistance = 50
+legSpeed = 0.5
 drawAsMesh = false
 sizeCurve = SubResource("Curve_wtcfe")
 color = Color(0.050000012, 0.63583326, 1, 1)
