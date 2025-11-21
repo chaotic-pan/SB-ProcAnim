@@ -23,70 +23,73 @@ public partial class Bug : Node2D
 			var side = i % 2 == 0 ? 1 : -1;
 			
 			legs[i] = new Leg(pos, orientation, side, jointCount+1, distance, legSpeed);
+			legs[i].StartStep += StopTimers;
+			legs[i].EndStep += StarTimers;
 			legs[i].Recalculate();
 		}
+
+		stepTimerL = new Timer();
+		stepTimerL.Timeout += () => TriggerStep(1);
+		AddChild(stepTimerL);
+		stepTimerR = new Timer();
+		stepTimerR.Timeout += () => TriggerStep(-1);
+		AddChild(stepTimerR);
+		StarTimers(0);
 	}
-	
-	double restTimer = 2;
-	double stepTimerL = 1;
-	double stepTimerR = 0;
+
+	private Timer stepTimerL;
+	private Timer stepTimerR;
+
+	private void StarTimers(int side)
+	{
+		stepTimerL.SetPaused(false);
+		stepTimerL.Start(side*0.25 + 0.75);
+		stepTimerR.SetPaused(false);
+		stepTimerR.Start(side*-0.25 + 0.75);
+	}
+
+	private void StopTimers(int side)
+	{
+		stepTimerL.SetPaused(true);
+		stepTimerR.SetPaused(true);
+	}
+
+	private void TriggerStep(int side)
+	{
+		var dir = mousePos - pos;
+		var newPos = pos + dir.Normalized() * float.Min(dir.Length(), walkSpeed);
+
+		int i = (int)(side * -0.5 + 0.5);
+		
+		// when moved, update ori
+		if (pos != newPos)
+		{
+			legs[i].triggerStep();
+		}
+		legs[i].triggerRest();
+	}
 	
 	public override void _Process(double delta)
 	{
-		stepTimerL -= delta;
-		stepTimerR -= delta;
 		// move towards MouseClick
 		if (Input.IsMouseButtonPressed(MouseButton.Left)) mousePos = GetGlobalMousePosition();
 		var dir = mousePos - pos;
 		var newPos = pos + dir.Normalized() * float.Min(dir.Length(), walkSpeed);
 		
-		// when moved update ori and stepPoints
+		// when moved, update ori
 		if (pos != newPos)
 		{
-			restTimer = 2;
 			orientation = (newPos - pos).Normalized();
 			pos = newPos;
-			
 		}
-		else
-		{
-			// start timer for manual step
-			restTimer -= delta;
-		}
-
-		if (restTimer <= 0)
-		{
-			stepTimerL =2 ;
-			stepTimerR = 1;
-			foreach (var leg in legs)
-			{
-				leg.triggerRest();
-			}
-		}
-		else {
-			if (stepTimerL <= 0)
-			{
-				stepTimerL = 2;
-				legs[0].triggerStep();
-			}
-			else if (stepTimerR <= 0)
-			{
-				stepTimerR = 2;
-				legs[1].triggerStep();
-			}
-			
-			foreach (var leg in legs)
-			{
-				leg.pinPos = pos;
-				leg.orientation = orientation;
-				leg.Recalculate();
-			}
-			
-		}
-
 		
-		GetChild<Label>(0).Text = Math.Round(stepTimerL,2).ToString();
-		GetChild<Label>(1).Text = Math.Round(stepTimerR,2).ToString();
+		foreach (var leg in legs)
+		{
+			leg.pinPos = pos;
+			leg.orientation = orientation;
+			leg.Recalculate();
+		}
+		
 		QueueRedraw();
 	}
 	

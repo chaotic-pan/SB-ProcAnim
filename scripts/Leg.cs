@@ -8,14 +8,17 @@ public partial class Leg : Node2D
 	public Vector2 pinPos = new(626, 324);
 	public Vector2 footPos;
 	public Vector2 orientation;
-	public int side = 1;
+	private int side = 1;
 	[Export] public int count = 5;
 	[Export] public float distance = 20;
 	[Export] public float speed = 5;
 	private bool solo;
+	[Signal] public delegate void StartStepEventHandler(int side);
+	[Signal] public delegate void EndStepEventHandler(int side);
 
 	public Leg(Vector2 pinPos, Vector2 orientation, int side, int count, float distance, float speed)
 	{
+		
 		this.pinPos = pinPos;
 		this.orientation = orientation;
 		this.side = side;
@@ -80,20 +83,21 @@ public partial class Leg : Node2D
 
 	public void triggerStep()
 	{
-		// footPos = pinPos + StepCalc(30);
-		// Recalculate();
+		footPos = pinPos + StepCalc(30);
+		Recalculate();
 	}
 
 	
 	public void triggerRest()
 	{
-		// footPos = pinPos + StepCalc(90);
-		// step = false;
-		// Recalculate();
+		footPos = pinPos + StepCalc(90).Normalized() * (distance*0.75f);
+		step = false;
+		Recalculate();
 	}
 	
 	private Vector2 StepCalc(float offsetAngle)
 	{
+		
 		// set point +/- 30° from orientation
 		var angle= orientation.Angle() + side*(Math.PI / 180 * offsetAngle);
 			
@@ -112,15 +116,19 @@ public partial class Leg : Node2D
 	{
 		points[0] = pinPos;
 		
-		// get new footPos when outta range + keep updating til foot reached it 
+		// get new footPos when outta range 
 		if ((footPos-pinPos).Length() > distance*(count-1))
 		{
 			footPos = pinPos + StepCalc(30);
+			// TODO pause other step
+			EmitSignal(SignalName.StartStep, side);
 			step = true;
 		}
-
+		// + keep updating til foot reached it 
 		if (step && Math.Abs((points[count - 1]-footPos).Length()) > 5)
 		{
+			// TODO cont other step
+			EmitSignal(SignalName.EndStep, side);
 			footPos = pinPos + StepCalc(30);
 		}
 		
