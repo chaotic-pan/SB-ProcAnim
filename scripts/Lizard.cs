@@ -13,6 +13,7 @@ public partial class Lizard : Node2D
 	[Export] public int jointCount;
 	[Export] public int jointDistance;
 	[Export] public float legSpeed;
+	[Export] public bool drawRanges = true;
 	[Export] public bool drawAsMesh = true;
 	[Export] public Curve sizeCurve = new();
 	[Export] public Color color = new(1, 1, 1);
@@ -32,9 +33,9 @@ public partial class Lizard : Node2D
 		var j = 0;
 		foreach (var bugPos in legCounts.Keys)
 		{
-			bugs[j] = new Bug(points[bugPos], (points[bugPos-1]-points[bugPos]).Normalized(), legCounts[bugPos], 
-				jointCount, jointDistance, legSpeed, speed);
-			// AddChild(bugs[j]);
+			bugs[j] = new Bug(points[bugPos-2], points[bugPos], legCounts[bugPos], 
+				jointCount, jointDistance, legSpeed, speed, drawRanges);
+			AddChild(bugs[j]);
 			j++;
 		}
 	}
@@ -47,9 +48,8 @@ public partial class Lizard : Node2D
 		var j = 0;
 		foreach (var bugPos in legCounts.Keys)
 		{
-			bugs[j].pinPos = points[bugPos];
-			bugs[j].orientation = (points[0] - points[bugPos]).Normalized();;
-			bugs[j].Recalculate();
+			bugs[j].pos = points[bugPos];
+			bugs[j].lookPos = points[bugPos-2];
 			j++;
 		}
 		QueueRedraw();
@@ -89,43 +89,8 @@ public partial class Lizard : Node2D
 	{
 		if (drawAsMesh) DrawPolygon();
 		else DrawCircles();
-		DrawLegs();
 	}
-
-	private void DrawLegs()
-	{
-		foreach (var bug in bugs)
-		{
-			// orientation
-			DrawLine(bug.pos, bug.pinPos+bug.orientation*30, Colors.DimGray, 1, true);
-			
-			var a = new Vector2(10, 10);
-			var b = new Vector2(-10, 10);
-			
-			foreach (var leg in bug.legs)
-			{
-				// foot X
-				DrawLine(leg.footPos-a, leg.footPos+a, Colors.DarkRed, 1, true);
-				DrawLine(leg.footPos+b, leg.footPos-b, Colors.DarkRed, 1, true);
-			
-				// leg
-				for (var i = 1; i < leg.points.Count; i++)
-				{
-					DrawLine(leg.points[i-1], leg.points[i], Colors.Black, 3, true);
-				}
-				// joint
-				for (var i = 1; i < leg.points.Count; i++)
-				{
-					DrawCircle(leg.points[i], 7, Colors.SteelBlue, true);
-				}
-			}
-		
-			// pin
-			DrawCircle(bug.pos, 10, Colors.DimGray, true);
-			DrawCircle(bug.pos, jointDistance * jointCount, new Color(.5f, .5f, .5f, .3f), false);
-		}
-	}
-
+	
 	private void DrawCircles()
 	{
 		for (var i = 0; i < points.Count; i++)

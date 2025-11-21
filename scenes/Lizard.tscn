@@ -19,12 +19,13 @@ count = 15
 distance = 30.0
 speed = 2.0
 legCounts = Dictionary[int, int]({
-3: 2
+3: 2,
+8: 2
 })
 jointCount = 2
 jointDistance = 50
-legSpeed = 0.5
-drawAsMesh = false
+legSpeed = 0.1
+drawRanges = false
 sizeCurve = SubResource("Curve_wtcfe")
 color = Color(0.050000012, 0.63583326, 1, 1)
 gradient = SubResource("Gradient_wtcfe")

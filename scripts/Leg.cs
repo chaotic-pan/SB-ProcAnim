@@ -12,7 +12,8 @@ public partial class Leg : Node2D
 	[Export] public int count = 5;
 	[Export] public float distance = 20;
 	[Export] public float speed = 5;
-	private bool solo;
+	[Export] public bool drawRanges = true;
+	private bool solo = true;
 	[Signal] public delegate void StartStepEventHandler(int side);
 	[Signal] public delegate void EndStepEventHandler(int side);
 	
@@ -20,7 +21,7 @@ public partial class Leg : Node2D
 	{
 	}
 
-	public Leg(Vector2 pinPos, Vector2 orientation, int side, int count, float distance, float speed)
+	public Leg(Vector2 pinPos, Vector2 orientation, int side, int count, float distance, float speed, bool drawRanges)
 	{
 		this.pinPos = pinPos;
 		this.orientation = orientation;
@@ -28,6 +29,8 @@ public partial class Leg : Node2D
 		this.count = count;
 		this.distance = distance;
 		this.speed = speed;
+		this.drawRanges = drawRanges;
+		solo = false;
 		
 		var angle= orientation.Angle() + side*(Math.PI/2);
 		// adjust for Pi wrap
@@ -41,13 +44,12 @@ public partial class Leg : Node2D
 
 	public override void _Ready()
 	{
-		count++;
-		solo = true;
-		Init(new Vector2(1,0));
+		if (solo) Init(new Vector2(1,0));
 	}
 
 	private void Init(Vector2 direction)
 	{
+		count++;
 		var pos = pinPos;
 		for (int i = 0; i < count; i++)
 		{
@@ -60,22 +62,23 @@ public partial class Leg : Node2D
 	
 	public override void _Process(double delta)
 	{
-		if (!solo) return;
-		if (Input.IsKeyPressed(Key.S)) pinPos.Y++;
-		if (Input.IsKeyPressed(Key.W)) pinPos.Y--;
-		if (Input.IsKeyPressed(Key.D)) pinPos.X++;
-		if (Input.IsKeyPressed(Key.A)) pinPos.X--;
-
-		if (Input.IsMouseButtonPressed(MouseButton.Left))
+		if (solo)
 		{
-			footPos = GetGlobalMousePosition();
-			step = false;
-			
+			if (Input.IsKeyPressed(Key.S)) pinPos.Y++;
+			if (Input.IsKeyPressed(Key.W)) pinPos.Y--;
+			if (Input.IsKeyPressed(Key.D)) pinPos.X++;
+			if (Input.IsKeyPressed(Key.A)) pinPos.X--;
+
+			if (Input.IsMouseButtonPressed(MouseButton.Left))
+			{
+				footPos = GetGlobalMousePosition();
+				step = false;
+				
+			}
 		}
 		
 		Recalculate();
 		QueueRedraw();
-
 	}
 
 	public void triggerStep()
@@ -94,7 +97,6 @@ public partial class Leg : Node2D
 	
 	private Vector2 StepCalc(float offsetAngle)
 	{
-		
 		// set point +/- 30° from orientation
 		var angle= orientation.Angle() + side*(Math.PI / 180 * offsetAngle);
 			
@@ -171,15 +173,25 @@ public partial class Leg : Node2D
 	{
 		var a = new Vector2(10, 10);
 		var b = new Vector2(-10, 10);
-		
-		
-		DrawLine(footPos-a, footPos+a, Colors.DarkRed, 1, true);
-		DrawLine(footPos+b, footPos-b, Colors.DarkRed, 1, true);
+
+		var step = pinPos + StepCalc(30);
+
+		if (drawRanges)
+		{
+			DrawLine(step - a / 2, step + a / 2, Colors.DimGray, 1, true);
+			DrawLine(step + b / 2, step - b / 2, Colors.DimGray, 1, true);
+
+			DrawLine(footPos-a, footPos+a, Colors.DarkRed, 1, true);
+			DrawLine(footPos+b, footPos-b, Colors.DarkRed, 1, true);
+		}
 			
 		for (var i = 1; i < points.Count; i++)
 		{
-			DrawCircle(points[0], distance*i ,new Color(.5f, .5f, .5f, .5f), false);
-			DrawCircle(points[i], distance ,new Color(.5f, .5f, .5f, .3f), false);
+			if (drawRanges)
+			{
+				DrawCircle(points[0], distance*i ,new Color(.5f, .5f, .5f, .5f), false);
+				DrawCircle(points[i], distance ,new Color(.5f, .5f, .5f, .3f), false);
+			}
 			DrawLine(points[i-1], points[i], Colors.Black, 5, true);
 		}
 		for (var i = 1; i < points.Count; i++)
