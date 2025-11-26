@@ -34,7 +34,7 @@ public partial class Lizard : Node2D
 		foreach (var bugPos in legCounts.Keys)
 		{
 			bugs[j] = new Bug(points[bugPos-2], points[bugPos], legCounts[bugPos], 
-				jointCount, jointDistance, legSpeed, speed, drawRanges);
+				jointDistance, legSpeed, speed, drawRanges);
 			AddChild(bugs[j]);
 			j++;
 		}

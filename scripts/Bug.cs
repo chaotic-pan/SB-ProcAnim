@@ -4,7 +4,6 @@ using System;
 public partial class Bug : Node2D
 {
 	[Export] public int legCount = 1;
-	[Export] public int jointCount = 1;
 	[Export] public float distance = 20;
 	[Export] public float legSpeed = 0.1f;
 	[Export] public float walkSpeed = 0.1f;
@@ -19,14 +18,13 @@ public partial class Bug : Node2D
 	{
 	}
 	
-	public Bug(Vector2 lookPos, Vector2 pos, int legCount, int jointCount, float distance, float legSpeed, 
+	public Bug(Vector2 lookPos, Vector2 pos, int legCount, float distance, float legSpeed, 
 		float walkSpeed, bool drawRanges)
 	{
 		this.lookPos = lookPos;
 		this.pos = pos;
 		orientation = (lookPos - pos).Normalized();
 		this.legCount = legCount;
-		this.jointCount = jointCount;
 		this.distance = distance;
 		this.legSpeed = legSpeed;
 		this.walkSpeed = walkSpeed;
@@ -52,7 +50,7 @@ public partial class Bug : Node2D
 		{
 			var side = i % 2 == 0 ? 1 : -1;
 			
-			legs[i] = new Leg(lookPos, orientation, side, jointCount, distance, legSpeed, drawRanges);
+			legs[i] = new Leg(lookPos, orientation, side, distance, distance, legSpeed, drawRanges);
 			AddChild(legs[i]);
 			legs[i].StartStep += StopTimers;
 			legs[i].EndStep += StarTimers;
@@ -115,9 +113,7 @@ public partial class Bug : Node2D
 		
 		foreach (var leg in legs)
 		{
-			leg.pinPos = pos;
-			leg.orientation = orientation;
-			leg.Recalculate();
+			leg.Refresh(pos, orientation);
 		}
 		
 		QueueRedraw();
