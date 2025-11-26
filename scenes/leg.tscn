@@ -6,3 +6,5 @@
 script = ExtResource("1_onwxs")
 Dis1 = 50.0
 Dis2 = 100.0
+KneeBackwards = true
+DrawAsMesh = true

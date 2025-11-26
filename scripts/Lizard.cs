@@ -10,8 +10,10 @@ public partial class Lizard : Node2D
 	[Export] public float distance = 20;
 	[Export] public float speed = 5;
 	[Export] public Dictionary<int, int> legCounts = new();
-	[Export] public int jointCount;
-	[Export] public int jointDistance;
+	[Export] public float distanceUp = 20;
+	[Export] public float distanceLow = 20;
+	[Export] public float stepInterval = 2;
+	[Export] public float stepWidth = 30;
 	[Export] public float legSpeed;
 	[Export] public bool drawRanges = true;
 	[Export] public bool drawAsMesh = true;
@@ -33,11 +35,14 @@ public partial class Lizard : Node2D
 		var j = 0;
 		foreach (var bugPos in legCounts.Keys)
 		{
-			bugs[j] = new Bug(points[bugPos-2], points[bugPos], legCounts[bugPos], 
-				jointDistance, legSpeed, speed, drawRanges);
+			bugs[j] = new Bug(points[bugPos-2], points[bugPos], j == 0 , legCounts[bugPos], 
+				distanceUp, distanceLow, legSpeed, speed, stepInterval, stepWidth, drawRanges, drawAsMesh);
 			AddChild(bugs[j]);
+			bugs[j].Init();
 			j++;
 		}
+
+		GD.Print(GetChild(0).Name);
 	}
 
 	public override void _Process(double delta)
@@ -48,8 +53,7 @@ public partial class Lizard : Node2D
 		var j = 0;
 		foreach (var bugPos in legCounts.Keys)
 		{
-			bugs[j].pos = points[bugPos];
-			bugs[j].lookPos = points[bugPos-2];
+			bugs[j].Refresh(points[bugPos], points[bugPos-2]);
 			j++;
 		}
 		QueueRedraw();
@@ -105,31 +109,47 @@ public partial class Lizard : Node2D
 		Vector2[] verx = new Vector2[count*2];
 		float x, y;
 		
-		for (int i = 0; i < points.Count; i++)
+		for (int i = 0; i < points.Count-1; i++)
 		{
-			var size = sizeCurve.Sample((float)i / count);
+			float size;
+			Vector2 prev, next;
 			
 			if (i == 0)
 			{
-				x = (float)(points[i].X + size * Math.Cos((points[i] - points[i + 1]).Angle()));
-				y = (float)(points[i].Y + size * Math.Sin((points[i] - points[i + 1]).Angle()));
-				verx[0] = new Vector2(x, y);
+				size = sizeCurve.Sample((float)i / count);
+				x = (float)(points[i].X + size * Math.Cos((points[i] - points[i+1]).Angle()));
+				y = (float)(points[i].Y + size * Math.Sin((points[i] - points[i+1]).Angle()));
 			}
-			
-			if (i == count - 1)
+			else
 			{
-				verx[count] = points[i];
-				continue;
+				size = sizeCurve.Sample((float)(i-1) / count);
+				x = (float)(points[i-1].X + size * Math.Cos((points[i-1] - points[i]).Angle() + Math.PI / 2));
+				y = (float)(points[i-1].Y + size * Math.Sin((points[i-1] - points[i]).Angle() + Math.PI / 2));
+			}
+			prev = new Vector2(x, y);
+
+			if (i == count - 2)
+			{
+				next = points[i+1];
+			}
+			else
+			{
+				size = sizeCurve.Sample((float)(i+1) / count);
+				x = (float)(points[i+1].X + size * Math.Cos((points[i+1] - points[i+2]).Angle() - Math.PI / 2));
+				y = (float)(points[i+1].Y + size * Math.Sin((points[i+1] - points[i+2]).Angle() - Math.PI / 2));
+				next = new Vector2(x, y);
 			}
 			
+			size = sizeCurve.Sample((float)i / count);
 			x = (float)(points[i].X + size * Math.Cos((points[i] - points[i + 1]).Angle() + Math.PI / 2));
 			y = (float)(points[i].Y + size * Math.Sin((points[i] - points[i + 1]).Angle() + Math.PI / 2));
-			verx[i + 1] = new Vector2(x, y);
+			var left = new Vector2(x, y);
 			x = (float)(points[i].X + size * Math.Cos((points[i] - points[i + 1]).Angle() - Math.PI / 2));
 			y = (float)(points[i].Y + size * Math.Sin((points[i] - points[i + 1]).Angle() - Math.PI / 2));
-			verx[count * 2 - i - 1] = new Vector2(x, y);
+			var right = new Vector2(x, y);
+			
+			DrawColoredPolygon([prev, left, right, prev],  color);
+			DrawColoredPolygon([next, left, right, next], color);
 		}
-		
-		DrawColoredPolygon(verx, color);
 	}
 }

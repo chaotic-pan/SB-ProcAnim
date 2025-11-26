@@ -3,35 +3,44 @@ using System;
 
 public partial class Bug : Node2D
 {
-	[Export] public int legCount = 1;
-	[Export] public float distance = 20;
-	[Export] public float legSpeed = 0.1f;
-	[Export] public float walkSpeed = 0.1f;
-	[Export] public bool drawRanges = true;
-	public Vector2 lookPos;
-	public Vector2 pos = new(626, 324);
-	public Leg[] legs;
-	public Vector2 orientation;
+	[Export] public int LegCount = 1;
+	[Export] public float DistanceUp = 20;
+	[Export] public float DistanceLow = 20;
+	[Export] private float legSpeed = 0.1f;
+	[Export] public float WalkSpeed = 0.1f;
+	[Export] public float StepInterval = 2;
+	[Export] public bool DrawRanges = true;
+	[Export] public bool DrawAsMesh = true;
+	[Export] public bool KneeBackwards;
+	private Vector2 lookPos;
+	private Vector2 lastPos;
+	private Vector2 pos = new(626, 324);
+	private Leg[] legs;
+	private Vector2 orientation;
 	private bool solo = true;
+	private float stepWidth;
 
 	public Bug()
 	{
 	}
 	
-	public Bug(Vector2 lookPos, Vector2 pos, int legCount, float distance, float legSpeed, 
-		float walkSpeed, bool drawRanges)
+	public Bug(Vector2 lookPos, Vector2 pos, bool kneeBackwards, int legCount, float distanceUp, float distanceLow, float legSpeed, 
+		float walkSpeed, float stepInterval, float stepWidth, bool drawRanges, bool drawAsMesh)
 	{
 		this.lookPos = lookPos;
 		this.pos = pos;
 		orientation = (lookPos - pos).Normalized();
-		this.legCount = legCount;
-		this.distance = distance;
+		KneeBackwards = kneeBackwards;
+		LegCount = legCount;
+		DistanceUp = distanceUp;
+		DistanceLow = distanceLow;
 		this.legSpeed = legSpeed;
-		this.walkSpeed = walkSpeed;
-		this.drawRanges = drawRanges;
+		WalkSpeed = walkSpeed;
+		StepInterval = stepInterval;
+		this.stepWidth = stepWidth;
+		DrawRanges = drawRanges;
+		DrawAsMesh = drawAsMesh;
 		solo = false;
-		
-		Init();
 	}
 
 	public override void _Ready()
@@ -43,58 +52,53 @@ public partial class Bug : Node2D
 		}
 	}
 
-	private void Init()
+	public void Init()
 	{
-		legs = new Leg[legCount];
+		legs = new Leg[LegCount];
 		for (int i = 0; i < legs.Length; i++)
 		{
 			var side = i % 2 == 0 ? 1 : -1;
 			
-			legs[i] = new Leg(lookPos, orientation, side, distance, distance, legSpeed, drawRanges);
+			legs[i] = new Leg(lookPos, orientation, KneeBackwards, side, DistanceUp, DistanceLow, 
+				legSpeed, stepWidth, DrawRanges, DrawAsMesh);
 			AddChild(legs[i]);
-			legs[i].StartStep += StopTimers;
-			legs[i].EndStep += StarTimers;
+			// legs[i].StartStep += StopTimers;
+			// legs[i].EndStep += StarTimers;
 		}
 
-		stepTimerL = new Timer();
-		stepTimerL.Timeout += () => TriggerStep(1);
-		AddChild(stepTimerL);
-		stepTimerR = new Timer();
-		stepTimerR.Timeout += () => TriggerStep(-1);
-		AddChild(stepTimerR);
-		StarTimers(0);
+		stepTimer = new Timer();
+		stepTimer.Timeout += () => TriggerStep();
+		AddChild(stepTimer);
+		stepTimer.Start(StepInterval);
 	}
 
-	private Timer stepTimerL;
-	private Timer stepTimerR;
+	private Timer stepTimer;
 
-	private void StarTimers(int side)
+	private void StarTimers()
 	{
-		stepTimerL.SetPaused(false);
-		stepTimerL.Start(side*0.25 + 0.75);
-		stepTimerR.SetPaused(false);
-		stepTimerR.Start(side*-0.25 + 0.75);
+		// stepTimer.SetPaused(false);
+		// stepTimer.Start(side == 1 ? stepTimer : stepTimer/2);
 	}
 
-	private void StopTimers(int side)
+	private void StopTimers()
 	{
-		stepTimerL.SetPaused(true);
-		stepTimerR.SetPaused(true);
+		// stepTimerL.SetPaused(true);
+		// stepTimerR.SetPaused(true);
 	}
 
-	private void TriggerStep(int side)
+	private void TriggerStep()
 	{
-		var dir = lookPos - pos;
-		var newPos = pos + dir.Normalized() * float.Min(dir.Length(), walkSpeed);
+		// check which foot is further out -> move that
 
-		int i = (int)(side * -0.5 + 0.5);
+		var disL = legs[0].getFootDistance();
+		var disR = legs[1].getFootDistance();
+		var i = disL > disR ? 0 : 1;
 		
-		// when moved, update ori
-		if (pos != newPos)
-		{
-			legs[i].triggerStep();
-		}
-		legs[i].triggerRest();
+		// when moved
+		if (pos != lastPos) legs[i].triggerStep();
+		else legs[i].triggerRest();
+		
+		stepTimer.Start(StepInterval);
 	}
 	
 	public override void _Process(double delta)
@@ -105,7 +109,7 @@ public partial class Bug : Node2D
 			if (Input.IsMouseButtonPressed(MouseButton.Left)) lookPos = GetGlobalMousePosition();
             		
 			var dir = lookPos - pos;
-			var newPos = pos + dir.Normalized() * float.Min(dir.Length(), walkSpeed);
+			var newPos = pos + dir.Normalized() * float.Min(dir.Length(), WalkSpeed);
 			pos = newPos;
 		}
 		
@@ -116,11 +120,15 @@ public partial class Bug : Node2D
 			leg.Refresh(pos, orientation);
 		}
 		
+		// GetChild<Label>(0).Text = Math.Round((decimal)stepTimer.TimeLeft,1).ToString();
+		// GetChild<Label>(1).Text = Math.Round((decimal)stepTimerR.TimeLeft, 1).ToString();
+		
 		QueueRedraw();
 	}
 	
 	public override void _Draw()
 	{
+		if (!DrawRanges) return;
 		// orientation
 		DrawLine(pos, pos+orientation*30, Colors.Blue, 1, true);
 		
@@ -128,4 +136,11 @@ public partial class Bug : Node2D
 		DrawCircle(pos, 10, Colors.Blue, true);
 	}
 
+	public void Refresh(Vector2 bugPos, Vector2 orientation)
+	{
+		lastPos = pos;
+		pos = bugPos;
+		lookPos = orientation;
+
+	}
 }

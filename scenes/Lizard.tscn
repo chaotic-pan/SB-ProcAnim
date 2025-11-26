@@ -17,15 +17,17 @@ metadata/_snap_count = 12
 script = ExtResource("1_wtcfe")
 count = 15
 distance = 30.0
-speed = 2.0
+speed = 1.5
 legCounts = Dictionary[int, int]({
 3: 2,
 8: 2
 })
-jointCount = 2
-jointDistance = 50
+distanceUp = 50.0
+distanceLow = 25.0
+stepInterval = 0.25
+stepWidth = 45.0
 legSpeed = 0.1
 drawRanges = false
 sizeCurve = SubResource("Curve_wtcfe")
-color = Color(0.050000012, 0.63583326, 1, 1)
+color = Color(0.050980393, 0.63529414, 1, 1)
 gradient = SubResource("Gradient_wtcfe")
