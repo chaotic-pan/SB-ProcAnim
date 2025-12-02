@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://cj3hurgw6npo"]
+
+[ext_resource type="Script" uid="uid://bwl71mqpg6jp1" path="res://scripts/SoftBody.cs" id="1_hhs3v"]
+
+[sub_resource type="Gradient" id="Gradient_wtcfe"]
+offsets = PackedFloat32Array(0, 0.083333336, 0.16666667, 0.25, 0.33333334, 0.41666666, 0.5, 0.5833333, 0.6666667, 0.75, 0.8333333, 0.9166667, 1)
+colors = PackedColorArray(1, 0, 0, 1, 1, 0.5, 0, 1, 1, 1, 0, 1, 0.5, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0.5, 1, 0, 1, 1, 1, 0, 0.5, 1, 1, 0, 0, 1, 1, 0.5, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0.5, 1, 1, 0, 0, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 12
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_hhs3v")
+P1 = Vector2(1, 1)
+P2 = Vector2(1151, 647)
+inertia = Vector2(10, 0)
+count = 12
+gradient = SubResource("Gradient_wtcfe")
