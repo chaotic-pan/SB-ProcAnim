@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://clroo7bygrcow"]
+[gd_scene load_steps=26 format=3 uid="uid://clroo7bygrcow"]
 
 [ext_resource type="Script" uid="uid://cm2p1gluhd2va" path="res://scripts/3D/Leg3D.cs" id="1_gieqb"]
 
@@ -51,6 +51,18 @@ albedo_color = Color(0, 0, 1, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gieqb"]
 shading_mode = 0
 
+[sub_resource type="SphereMesh" id="SphereMesh_gieqb"]
+radius = 3.0
+height = 6.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cf7l0"]
+shading_mode = 0
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_fu5k1"]
+radius = 1.5
+height = 3.0
+
 [sub_resource type="SphereMesh" id="SphereMesh_m0cec"]
 radius = 3.0
 height = 6.0
@@ -63,7 +75,15 @@ height = 0.75
 radial_segments = 8
 rings = 8
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_lbdw5"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_p4fy2"]
+lightmap_size_hint = Vector2i(17, 19)
+top_radius = 0.25
+bottom_radius = 0.05
+height = 3.0
+radial_segments = 4
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_o4xg2"]
 lightmap_size_hint = Vector2i(17, 19)
 top_radius = 0.25
 bottom_radius = 0.05
@@ -85,6 +105,8 @@ drawDebugs = true
 yellow = SubResource("StandardMaterial3D_vrndn")
 blue = SubResource("StandardMaterial3D_utjls")
 red = SubResource("StandardMaterial3D_0dmhn")
+distanceUp = 4.0
+distanceLow = 2.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.6465635, 0, -0.7628602, 0, 1, 0, 0.7628602, 0, 0.6465635, -6.5701895, 4.1210766, 5.348613)
@@ -140,7 +162,12 @@ mesh = SubResource("BoxMesh_m0cec")
 [node name="head2" type="MeshInstance3D" parent="TargetUp"]
 material_override = SubResource("StandardMaterial3D_gieqb")
 transparency = 0.95
-mesh = SubResource("SphereMesh_m0cec")
+mesh = SubResource("SphereMesh_gieqb")
+
+[node name="head3" type="MeshInstance3D" parent="TargetUp"]
+material_override = SubResource("StandardMaterial3D_cf7l0")
+transparency = 0.9
+mesh = SubResource("SphereMesh_fu5k1")
 
 [node name="TargetLow" type="StaticBody3D" parent="."]
 unique_name_in_owner = true
@@ -183,7 +210,7 @@ skeleton = NodePath("")
 
 [node name="tail" type="MeshInstance3D" parent="Hip/head"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, -1.5, 0)
-mesh = SubResource("CylinderMesh_lbdw5")
+mesh = SubResource("CylinderMesh_p4fy2")
 skeleton = NodePath("../Knee")
 
 [node name="Knee" type="Node3D" parent="Hip"]
@@ -197,7 +224,7 @@ skeleton = NodePath("")
 
 [node name="tail" type="MeshInstance3D" parent="Hip/Knee/head"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, -1.5, 0)
-mesh = SubResource("CylinderMesh_lbdw5")
+mesh = SubResource("CylinderMesh_o4xg2")
 skeleton = NodePath("../Knee")
 
 [node name="Foot" type="Node3D" parent="Hip/Knee"]

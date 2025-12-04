@@ -9,6 +9,8 @@ public partial class Leg3D : Node3D
 	[Export] private Material blue;
 	[Export] private Material red;
 	[Export] private float speed = 0.01f;
+	[Export] private float distanceUp = 3f;
+	[Export] private float distanceLow = 3f;
 	private Node3D hip;
 	private Node3D knee;
 	private Node3D foot;
@@ -27,8 +29,19 @@ public partial class Leg3D : Node3D
 	public override void _Ready()
 	{
 		hip = GetNode<Node3D>("%Hip");
+		var bone = hip.GetChild(0).GetChild<MeshInstance3D>(0);
+		((CylinderMesh)bone.Mesh).Height = distanceUp;
+		bone.Position = new Vector3(0, -distanceUp/2, 0);
+		
 		knee = GetNode<Node3D>("%Knee");
+		knee.Position = new Vector3(0, 0, -distanceUp);
+		bone = knee.GetChild(0).GetChild<MeshInstance3D>(0);
+		((CylinderMesh)bone.Mesh).Height = distanceLow;
+		bone.Position = new Vector3(0, -distanceLow/2, 0);
+		
 		foot = GetNode<Node3D>("%Foot");
+		foot.Position = new Vector3(0, 0, -distanceLow);
+		
 		pole = GetNode<Node3D>("%Pole");
 		// gizmo = GetNode<Node3D>("%Gizmo");
 		targetUp = GetNode<Node3D>("%TargetUp");
@@ -36,6 +49,23 @@ public partial class Leg3D : Node3D
 
 		if (drawDebugs)
 		{
+			var rangeUp = (SphereMesh)targetUp.GetChild<MeshInstance3D>(2).Mesh;
+			rangeUp.Height = distanceUp*2;
+			rangeUp.Radius = distanceUp;
+			if (distanceUp == distanceLow)
+			{
+				targetUp.GetChild<MeshInstance3D>(3).Transparency = 1;
+			}
+			else
+			{
+				rangeUp = (SphereMesh)targetUp.GetChild<MeshInstance3D>(3).Mesh;
+				rangeUp.Radius = Math.Abs(distanceUp-distanceLow);
+				rangeUp.Height = rangeUp.Radius*2;
+			}
+			var rangeLow = (SphereMesh)targetLow.GetChild<MeshInstance3D>(2).Mesh;
+			rangeLow.Height = distanceLow*2;
+			rangeLow.Radius = distanceLow;
+			
 			// intersection circle
 			var torus = new TorusMesh();
 			torus.SurfaceSetMaterial(0, red);
@@ -110,6 +140,7 @@ public partial class Leg3D : Node3D
 		else
 		{
 			targetUp.GetChild<MeshInstance3D>(2).Transparency = 1;
+			targetUp.GetChild<MeshInstance3D>(3).Transparency = 1;
 			targetLow.GetChild<MeshInstance3D>(2).Transparency = 1;
 		}
 
@@ -139,8 +170,10 @@ public partial class Leg3D : Node3D
 			if (Input.IsKeyPressed(Key.E))
 				pos.X += 0.01f;
 			if (isGrabbed == pole ||
-				(pos.DistanceTo(targetLow.GlobalPosition) < DIS * 2 &&
-			    pos.DistanceTo(targetUp.GlobalPosition) < DIS * 2))
+			    (isGrabbed == targetUp && pos.DistanceTo(targetLow.GlobalPosition) < distanceUp+distanceLow &&
+			     pos.DistanceTo(targetLow.GlobalPosition) > Math.Abs(distanceUp-distanceLow) ) ||
+			    (isGrabbed == targetLow && pos.DistanceTo(targetUp.GlobalPosition) < distanceUp+distanceLow &&
+			     pos.DistanceTo(targetUp.GlobalPosition) > Math.Abs(distanceUp-distanceLow)))
 			{
 				isGrabbed.GlobalPosition = pos;
 				Recalculate();
@@ -154,34 +187,36 @@ public partial class Leg3D : Node3D
 		hip.GlobalPosition = targetUp.GlobalPosition;
 		
 		var line = targetUp.GlobalPosition - targetLow.GlobalPosition;
-		var mid = targetLow.GlobalPosition + line/2;
 		
-		var d =  DIS / line.Length();
-		var R = (float)Math.Sqrt(d * d - (1f / 4f)) * line.Length(); // assumes equal bone lengths
+		var r1 =  distanceUp / line.Length();
+		var r2 =  distanceLow / line.Length();
+		
+		var rX = (float)(Math.Pow(r1, 2) - Math.Pow(r2, 2) + 1) / 2;
+		var M =(targetUp.Position + (targetLow.Position - targetUp.Position) * new Vector3(rX,rX,rX));
+		
+		var R = (float)Math.Sqrt(Math.Pow(r1,2) - Math.Pow(((Math.Pow(r1,2) - Math.Pow(r2,2) +1) /2),2)) * line.Length();
 		
 		// perpendicular to line
 		Vector3 U = line.X != 0? new Vector3(-line.Y / line.X, 1, 0) :
 			line.Y != 0? new Vector3(0, -line.Z / line.Y, 1) : new Vector3(1, 0, -line.X / line.Z);
 		
-		var P = pole.GlobalPosition - mid;
+		var P = pole.GlobalPosition - M;
 		var N = (float)((P.Dot(line))/Math.Pow(line.Length(),2)) *line; // projection of K onto line
 		var proj = P - N; // projection of K onto intersection plane
 		
-		hip.LookAt(mid+proj.Normalized()*R);
+		hip.LookAt(M+proj.Normalized()*R);
 		knee.LookAt(targetLow.GlobalPosition);
 		foot.LookAt(foot.GlobalPosition + Vector3.Left);
 		
-		if (drawDebugs) DrawDebugs(line, mid, U, P, proj);
+		if (drawDebugs) DrawDebugs(line, M, R, U, P, proj);
 	}
 
-	private void DrawDebugs(Vector3 line, Vector3 mid, Vector3 U, Vector3 P, Vector3 proj)
+	private void DrawDebugs(Vector3 line, Vector3 mid, float R, Vector3 U, Vector3 P, Vector3 proj)
 	{
 		var torus = new TorusMesh();
 		torus.SurfaceSetMaterial(0, red);
 		// radius of intersection
-		var d =  DIS / line.Length();
-		var R = (float)Math.Sqrt(d * d - (1f / 4f)) * line.Length();
-		torus.OuterRadius = R; // assumes equal bone lengths
+		torus.OuterRadius = R;
 		torus.InnerRadius = torus.OuterRadius-0.01f;
 		debugTorus.GetChild<MeshInstance3D>(0).Mesh = torus;
 		debugTorus.LookAtFromPosition(mid, targetUp.GlobalPosition);
