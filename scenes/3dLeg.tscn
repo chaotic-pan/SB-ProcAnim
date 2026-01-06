@@ -101,12 +101,11 @@ rings = 1
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_gieqb")
-drawDebugs = true
 yellow = SubResource("StandardMaterial3D_vrndn")
 blue = SubResource("StandardMaterial3D_utjls")
 red = SubResource("StandardMaterial3D_0dmhn")
-distanceUp = 4.0
-distanceLow = 2.0
+distanceUp = 2.0
+distanceLow = 4.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.6465635, 0, -0.7628602, 0, 1, 0, 0.7628602, 0, 0.6465635, -6.5701895, 4.1210766, 5.348613)
@@ -201,7 +200,7 @@ mesh = SubResource("SphereMesh_1a1eb")
 
 [node name="Hip" type="Node3D" parent="."]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 3.7993288, 3.0003138)
+transform = Transform3D(1, 0, 0, 0, 0.97521496, 0.2212591, 0, -0.2212591, 0.97521496, 0, 3.7993288, 3.0003138)
 
 [node name="head" type="MeshInstance3D" parent="Hip"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
@@ -215,7 +214,7 @@ skeleton = NodePath("../Knee")
 
 [node name="Knee" type="Node3D" parent="Hip"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, 0, 0, -3)
+transform = Transform3D(1, 0, 0, 0, 0.10648971, 0.99431366, 0, -0.99431366, 0.10648971, 0, 0, -3.0000002)
 
 [node name="head" type="MeshInstance3D" parent="Hip/Knee"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
@@ -229,7 +228,7 @@ skeleton = NodePath("../Knee")
 
 [node name="Foot" type="Node3D" parent="Hip/Knee"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, 0, 0, -3)
+transform = Transform3D(1, 0, 0, 0, -0.08019897, -0.9967787, 0, 0.9967787, -0.08019897, 0, -5.9604645e-08, -3.0000005)
 
 [node name="head" type="MeshInstance3D" parent="Hip/Knee/Foot"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
