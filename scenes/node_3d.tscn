@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://cfrhyxgrw488v"]
+[gd_scene load_steps=6 format=3 uid="uid://cfrhyxgrw488v"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://addons/3d_rts_camera/rtscam.tscn" id="1_a202f"]
 [ext_resource type="PackedScene" uid="uid://iohv2d523ol2" path="res://scenes/floor.tscn" id="2_xvgsr"]
-[ext_resource type="ArrayMesh" uid="uid://cwpw5877t12kl" path="res://assets/box.obj" id="3_xvgsr"]
-[ext_resource type="Script" uid="uid://4lj1usdw268t" path="res://scripts/SpringMass.cs" id="4_a6664"]
+[ext_resource type="Script" uid="uid://4lj1usdw268t" path="res://scripts/3D/SpringMass.cs" id="3_oqwcg"]
+[ext_resource type="ArrayMesh" uid="uid://bxlkqu0j1k3ih" path="res://assets/ball.obj" id="4_xvgsr"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_xvgsr"]
 
 [node name="Node3D" type="Node3D"]
 
@@ -19,13 +21,8 @@ transform = Transform3D(0.9998855, 0.015131427, 0, -0.015131427, 0.9998855, 0, 0
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.65482247, -0.5058964, 0.5614948, -0.14024988, 0.6486897, 0.7480185, -0.7426558, -0.5685689, 0.35382462, 4.0983114, 7.297699, 5.012764)
 
-[node name="SoftBody3D" type="SoftBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0703926, 0)
-visible = false
-mesh = ExtResource("3_xvgsr")
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0586665, 0)
-mesh = ExtResource("3_xvgsr")
-script = ExtResource("4_a6664")
-mesh = ExtResource("3_xvgsr")
+transform = Transform3D(0.70710677, -0.70710677, 0, 0.49999997, 0.49999997, -0.70710677, 0.49999997, 0.49999997, 0.70710677, 0, 3.5175397, 0)
+mesh = SubResource("ImmediateMesh_xvgsr")
+script = ExtResource("3_oqwcg")
+refMesh = ExtResource("4_xvgsr")

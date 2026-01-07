@@ -73,4 +73,5 @@ camera_load={
 
 [physics]
 
+common/physics_ticks_per_second=5
 3d/physics_engine="Jolt Physics"
