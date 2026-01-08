@@ -8,6 +8,9 @@ using FileAccess = Godot.FileAccess;
 
 public partial class SpringMass : MeshInstance3D
 { 
+	[Export] private bool drawAsWireframe = false;
+	[Export] private bool drawFlexionWireframe = false;
+	[Export] private float springConst = 0.2f;
 	[Export] private Mesh refMesh;
 	private List<Vertex> verts = new();
 	private List<Vector3> normals = new();
@@ -24,10 +27,10 @@ public partial class SpringMass : MeshInstance3D
 	private void ReadInMesh(FileAccess file)
 	{
 		var content = file.GetAsText().Split("\n", false);
-
 		
 		foreach (string line in content)
 		{
+			// vertices
 			if (line.StartsWith("v "))
 			{
 				var split = line.Split(' ');
@@ -37,6 +40,7 @@ public partial class SpringMass : MeshInstance3D
 					float.Parse(split[3],CI)
 				)));
 			}
+			// normals
 			if (line.StartsWith("vn"))
 			{
 				var split = line.Split(' ');
@@ -46,27 +50,23 @@ public partial class SpringMass : MeshInstance3D
 					float.Parse(split[3],CI)
 				));
 			}
+			// faces
 			else if (line.StartsWith("f "))
 			{
 				var split = line.Split(' ');
-				if (split.Length > 5) GD.PushWarning("Mesh contains N-gons");
 				// f 1/1/1 2/2/1 4/3/1 3/4/1 
+				if (split.Length > 5) GD.PushWarning("Mesh contains N-gons");
+				// add index of normal and verts
 				var n = Int32.Parse(split[1].Split("/")[2])-1;
 				var a = Int32.Parse(split[1].Split("/")[0])-1;
 				var b = Int32.Parse(split[2].Split("/")[0])-1;
 				var c = Int32.Parse(split[3].Split("/")[0])-1;
-				
 				faces.Add([n, a, b, c]);
 				
-				var ab = (verts[b].position - verts[a].position).Length();
-				var ac = (verts[c].position - verts[a].position).Length();
-				var bc = (verts[c].position - verts[b].position).Length();
-				verts[a].neighbors.TryAdd(b, ab);
-				verts[a].neighbors.TryAdd(c, ac);
-				verts[b].neighbors.TryAdd(a, ab);
-				verts[b].neighbors.TryAdd(c, bc);
-				verts[c].neighbors.TryAdd(a, ac);
-				verts[c].neighbors.TryAdd(b, bc);
+				// add vert as each others neighbors + default distance 
+				ConnectSpring(verts[a], verts[b], false);
+				ConnectSpring(verts[a], verts[c], false);
+				ConnectSpring(verts[b], verts[c], false);
 				
 				// if QUAD split into TRIS
 				if (split.Length == 5)
@@ -74,36 +74,116 @@ public partial class SpringMass : MeshInstance3D
 					var d = Int32.Parse(split[4].Split("/")[0])-1;
 					faces.Add([n, a, c, d]);
 					
-					var ad = (verts[b].position - verts[a].position).Length();
-					var cd = (verts[b].position - verts[a].position).Length();
-					verts[a].neighbors.TryAdd(d, ad);
-					verts[c].neighbors.TryAdd(d, cd);
-					verts[d].neighbors.TryAdd(a, ad);
-					verts[d].neighbors.TryAdd(c, cd);
+					// ac already connected
+					ConnectSpring(verts[a], verts[d], false);
+					ConnectSpring(verts[c], verts[d], false);
 				}
 			}
 			
 		}
+		
+		// add 2nd neighbors for flexion springs
+		foreach (var vert in verts)
+		{
+			foreach (KeyValuePair<Vertex, float> neighbor in vert.neighbors) // for each neighbor
+			{
+				foreach (KeyValuePair<Vertex, float> flex in neighbor.Key.neighbors) // add each neighbor as 2nd
+				{
+					ConnectSpring(vert, flex.Key, true);
+				}
+			}
+		}
+	}
+
+	private void ConnectSpring(Vertex a, Vertex b, bool flexion)
+	{
+		if (a.neighbors.ContainsKey(b)) return;
+		
+		var ab = (b.position - a.position).Length();
+		if (flexion)
+		{
+			a.flexions.TryAdd(b, ab);
+			b.flexions.TryAdd(a, ab);
+			return;
+		}
+		a.neighbors.TryAdd(b, ab);
+		b.neighbors.TryAdd(a, ab);
 	}
 
 	private void BuildMesh()
 	{
-		ImmediateMesh m = Mesh as ImmediateMesh;
-		m.ClearSurfaces();
-		m.SurfaceBegin(Mesh.PrimitiveType.Triangles);
-		foreach (int[] face in faces)
+		ImmediateMesh mesh = Mesh as ImmediateMesh;
+		mesh.ClearSurfaces();
+		if (drawFlexionWireframe)
 		{
-			var s = verts[face[3]].position;
-			var r = verts[face[2]].position;
-			var q = verts[face[1]].position;
-			// m.SurfaceSetNormal(normals[face[0]]);
-			m.SurfaceSetNormal((r-q).Cross(s-q));
-			m.SurfaceAddVertex(s);
-			m.SurfaceAddVertex(r);
-			m.SurfaceAddVertex(q);
+			ImmediateMesh flexWires = GetChild<MeshInstance3D>(0).Mesh as ImmediateMesh;
+			flexWires.ClearSurfaces();
+			flexWires.SurfaceBegin(Mesh.PrimitiveType.Lines);
+			var drawn = new HashSet<Vertex[]>();
+			for (var i = 0; i < verts.Count; i++)
+			{
+				foreach (var flex in verts[i].flexions)
+				{
+					Vertex[] edge = [verts[i], flex.Key];
+					if (drawn.Add(edge))
+					{
+						var a = verts[i].position;
+						var b = flex.Key.position;
+
+						var dif = (a - b).Length() - flex.Value;
+						if (dif > flex.Value * springConst) flexWires.SurfaceSetColor(Colors.Orange);
+						else if (dif < flex.Value * -springConst) flexWires.SurfaceSetColor(Colors.LimeGreen);
+						else flexWires.SurfaceSetColor(Colors.Yellow);
+
+						flexWires.SurfaceAddVertex(a);
+						flexWires.SurfaceAddVertex(b);
+					}
+				}
+			}
+			flexWires.SurfaceEnd();
+		}
+		if (drawAsWireframe)
+		{
+			mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
+			var drawn = new HashSet<Vertex[]>();
+			for (var i=0; i<verts.Count; i++)
+			{
+				foreach (var neigh in verts[i].neighbors)
+				{
+					Vertex[] edge = [verts[i], neigh.Key];
+					if (drawn.Add(edge))
+					{
+						var a = verts[i].position;
+						var b = neigh.Key.position;
+					
+						var dif = (a-b).Length() - neigh.Value;
+						if (dif > neigh.Value*springConst) mesh.SurfaceSetColor(Colors.DarkRed);
+						else if (dif < neigh.Value*-springConst) mesh.SurfaceSetColor(Colors.Green);
+						else mesh.SurfaceSetColor(Colors.White);
+					
+						mesh.SurfaceAddVertex(a);
+						mesh.SurfaceAddVertex(b);
+					}
+				}
+			}
+		}
+		else
+		{ 
+			mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+            foreach (int[] face in faces)
+            {
+            	var a = verts[face[3]].position;
+            	var b = verts[face[2]].position;
+            	var c = verts[face[1]].position;
+            	// m.SurfaceSetNormal(normals[face[0]]);
+            	mesh.SurfaceSetNormal((b-c).Cross(a-c));
+            	mesh.SurfaceAddVertex(a);
+            	mesh.SurfaceAddVertex(b);
+            	mesh.SurfaceAddVertex(c);
+            }
 		}
 		
-		m.SurfaceEnd();
+		mesh.SurfaceEnd();
 	}
 	
 	private Vector3 G = (new Vector3(0, -9.81f, 0))/10;
@@ -121,22 +201,23 @@ public partial class SpringMass : MeshInstance3D
 			
 			verts[i].position = ToLocal(v);
 		}	
-		 /* SPRINGS
+		 /* SPRINGS*/
 		foreach (var vert in verts)
 		{
-			foreach (KeyValuePair<int, float> neighbor in vert.neighbors)
+			foreach (KeyValuePair<Vertex, float> neighbor in vert.neighbors)
 			{
-				var edge  = vert.position - verts[neighbor.Key].position;
-				var dif = Math.Abs(edge.Length() - neighbor.Value);
-				if (dif > neighbor.Value/2)
+				var edge  = vert.position - neighbor.Key.position;
+				var dif = edge.Length() - neighbor.Value;
+				edge = edge.Normalized();
+				
+				if (dif > neighbor.Value*springConst || dif < neighbor.Value*-springConst)
 				{
-					vert.position += edge * (dif/2);
-					verts[neighbor.Key].position -= edge * (dif/2);
-				}
+					vert.position -= edge * (dif*0.2f);
+					neighbor.Key.position += edge * (dif*0.2f);
+				} 
 			}
 		}
-		*/
-		
+
 		BuildMesh();
 	}
 }
@@ -144,8 +225,8 @@ public partial class SpringMass : MeshInstance3D
 class Vertex
 {
 	public Vector3 position;
-	public Dictionary<int, float> neighbors = new ();
-	public Dictionary<int, float> flexions = new();
+	public Dictionary<Vertex, float> neighbors = new ();
+	public Dictionary<Vertex, float> flexions = new();
 	
 	public Vertex(Vector3 position)
 	{
