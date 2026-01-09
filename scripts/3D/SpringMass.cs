@@ -217,6 +217,21 @@ public partial class SpringMass : MeshInstance3D
 				} 
 			}
 		}
+		foreach (var vert in verts)
+		{
+			foreach (KeyValuePair<Vertex, float> flex in vert.flexions)
+			{
+				var edge  = vert.position - flex.Key.position;
+				var dif = edge.Length() - flex.Value;
+				edge = edge.Normalized();
+				
+				if (dif > flex.Value*springConst || dif < flex.Value*-springConst)
+				{
+					vert.position -= edge * (dif*0.2f);
+					flex.Key.position += edge * (dif*0.2f);
+				} 
+			}
+		}
 
 		BuildMesh();
 	}

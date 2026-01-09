@@ -3,13 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://addons/3d_rts_camera/rtscam.tscn" id="1_a202f"]
 [ext_resource type="PackedScene" uid="uid://iohv2d523ol2" path="res://scenes/floor.tscn" id="2_xvgsr"]
 [ext_resource type="Script" uid="uid://4lj1usdw268t" path="res://scripts/3D/SpringMass.cs" id="3_oqwcg"]
-[ext_resource type="ArrayMesh" uid="uid://dimqreaecehrv" path="res://assets/sheet.obj" id="4_xvgsr"]
+[ext_resource type="ArrayMesh" uid="uid://cwpw5877t12kl" path="res://assets/box.obj" id="4_xvgsr"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xvgsr"]
 transparency = 1
 shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_color = Color(1, 1, 1, 0.5529412)
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_xvgsr"]
 
@@ -39,6 +38,8 @@ transform = Transform3D(0.70710677, -0.70710677, 0, 0.49999997, 0.49999997, -0.7
 material_override = SubResource("StandardMaterial3D_xvgsr")
 mesh = SubResource("ImmediateMesh_xvgsr")
 script = ExtResource("3_oqwcg")
+drawAsWireframe = true
+drawFlexionWireframe = true
 refMesh = ExtResource("4_xvgsr")
 
 [node name="DEBUG_FlexionWireframe" type="MeshInstance3D" parent="MeshInstance3D"]
