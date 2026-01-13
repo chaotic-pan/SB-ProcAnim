@@ -7,8 +7,8 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xvgsr"]
 transparency = 1
-shading_mode = 0
 vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 0.5019608)
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_xvgsr"]
 
@@ -34,11 +34,10 @@ transform = Transform3D(0.9998855, 0.015131427, 0, -0.015131427, 0.9998855, 0, 0
 transform = Transform3D(0.65482247, -0.5058964, 0.5614948, -0.14024988, 0.6486897, 0.7480185, -0.7426558, -0.5685689, 0.35382462, 4.0983114, 7.297699, 5.012764)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.70710677, -0.70710677, 0, 0.49999997, 0.49999997, -0.70710677, 0.49999997, 0.49999997, 0.70710677, 0, 3.5175397, 0)
+transform = Transform3D(-0.7571774, 0.3682039, 0.53954417, -0.6532091, -0.4268093, -0.6254211, 0, -0.82599, 0.5636846, 0, 3.5175397, 0)
 material_override = SubResource("StandardMaterial3D_xvgsr")
 mesh = SubResource("ImmediateMesh_xvgsr")
 script = ExtResource("3_oqwcg")
-drawAsWireframe = true
 drawFlexionWireframe = true
 refMesh = ExtResource("4_xvgsr")
 

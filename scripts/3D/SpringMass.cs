@@ -27,6 +27,7 @@ public partial class SpringMass : MeshInstance3D
 	private void ReadInMesh(FileAccess file)
 	{
 		var content = file.GetAsText().Split("\n", false);
+		bool pin = false;
 		
 		foreach (string line in content)
 		{
@@ -41,7 +42,7 @@ public partial class SpringMass : MeshInstance3D
 				)));
 			}
 			// normals
-			if (line.StartsWith("vn"))
+			else if (line.StartsWith("vn"))
 			{
 				var split = line.Split(' ');
 				normals.Add(new Vector3(
@@ -49,6 +50,11 @@ public partial class SpringMass : MeshInstance3D
 					float.Parse(split[2],CI),
 					float.Parse(split[3],CI)
 				));
+			}
+			else if (line.StartsWith("g"))
+			{
+				if (line.Contains("pin")) pin = true;
+				if (line.Contains("free")) pin = false;
 			}
 			// faces
 			else if (line.StartsWith("f "))
@@ -67,6 +73,13 @@ public partial class SpringMass : MeshInstance3D
 				ConnectSpring(verts[a], verts[b], false);
 				ConnectSpring(verts[a], verts[c], false);
 				ConnectSpring(verts[b], verts[c], false);
+
+				if (pin)
+				{
+					verts[a].pin = true;
+					verts[b].pin = true;
+					verts[c].pin = true;
+				}
 				
 				// if QUAD split into TRIS
 				if (split.Length == 5)
@@ -77,9 +90,9 @@ public partial class SpringMass : MeshInstance3D
 					// ac already connected
 					ConnectSpring(verts[a], verts[d], false);
 					ConnectSpring(verts[c], verts[d], false);
+					if (pin) verts[a].pin = true;
 				}
 			}
-			
 		}
 		
 		// add 2nd neighbors for flexion springs
@@ -94,7 +107,7 @@ public partial class SpringMass : MeshInstance3D
 			}
 		}
 	}
-
+	
 	private void ConnectSpring(Vertex a, Vertex b, bool flexion)
 	{
 		if (a.neighbors.ContainsKey(b)) return;
@@ -192,6 +205,8 @@ public partial class SpringMass : MeshInstance3D
 	{
 		for (int i = 0; i < verts.Count; i++)
 		{
+			if (verts[i].pin) continue;
+			
 			var v = ToGlobal(verts[i].position);
 			// apply forces
 			v += G * (float)delta; //Gravity
@@ -201,47 +216,48 @@ public partial class SpringMass : MeshInstance3D
 			
 			verts[i].position = ToLocal(v);
 		}	
-		 /* SPRINGS*/
-		foreach (var vert in verts)
-		{
-			foreach (KeyValuePair<Vertex, float> neighbor in vert.neighbors)
-			{
-				var edge  = vert.position - neighbor.Key.position;
-				var dif = edge.Length() - neighbor.Value;
-				edge = edge.Normalized();
-				
-				if (dif > neighbor.Value*springConst || dif < neighbor.Value*-springConst)
-				{
-					vert.position -= edge * (dif*0.2f);
-					neighbor.Key.position += edge * (dif*0.2f);
-				} 
-			}
-		}
-		foreach (var vert in verts)
-		{
-			foreach (KeyValuePair<Vertex, float> flex in vert.flexions)
-			{
-				var edge  = vert.position - flex.Key.position;
-				var dif = edge.Length() - flex.Value;
-				edge = edge.Normalized();
-				
-				if (dif > flex.Value*springConst || dif < flex.Value*-springConst)
-				{
-					vert.position -= edge * (dif*0.2f);
-					flex.Key.position += edge * (dif*0.2f);
-				} 
-			}
-		}
+		
+		 // SPRINGS
+		ConstrainSprings(false);
+		ConstrainSprings(true);
 
 		BuildMesh();
 	}
+
+	private void ConstrainSprings(bool flexions)
+	{
+		foreach (var vert in verts)
+		{
+			var list = flexions ? vert.flexions : vert.neighbors;
+			foreach (KeyValuePair<Vertex, float> neighbor in list)
+			{
+				var v = ToGlobal(vert.position);
+				var w = ToGlobal(neighbor.Key.position);
+			
+				var edge  = v - w;
+				var dif = edge.Length() - neighbor.Value;
+				edge = edge.Normalized();
+				
+					if (!vert.pin) v -= edge * (dif*springConst);
+					if (!neighbor.Key.pin) w += edge * (dif*springConst);
+					// ground plane collision
+					if (v.Y <= 0) v.Y = 0; 
+					if (w.Y <= 0) w.Y = 0; 
+				
+				vert.position = ToLocal(v);
+				neighbor.Key.position = ToLocal(w);
+			}
+		}
+	}
 }
+
 
 class Vertex
 {
 	public Vector3 position;
 	public Dictionary<Vertex, float> neighbors = new ();
 	public Dictionary<Vertex, float> flexions = new();
+	public bool pin;
 	
 	public Vertex(Vector3 position)
 	{
