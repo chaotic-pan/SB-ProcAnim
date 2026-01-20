@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cfrhyxgrw488v"]
+[gd_scene load_steps=10 format=3 uid="uid://cfrhyxgrw488v"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://addons/3d_rts_camera/rtscam.tscn" id="1_a202f"]
 [ext_resource type="PackedScene" uid="uid://iohv2d523ol2" path="res://scenes/floor.tscn" id="2_xvgsr"]
@@ -21,6 +21,8 @@ albedo_color = Color(0.79607844, 0.79607844, 0.79607844, 1)
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_a6664"]
 
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_5t4e2"]
+
 [node name="Node3D" type="Node3D"]
 
 [node name="RTScamera" parent="." instance=ExtResource("1_a202f")]
@@ -40,10 +42,10 @@ transform = Transform3D(-0.77386224, 0.26927873, 0.573259, -0.6333537, -0.329017
 material_override = SubResource("StandardMaterial3D_xvgsr")
 mesh = SubResource("ImmediateMesh_xvgsr")
 script = ExtResource("3_oqwcg")
-draw = 1
+draw = 9
 pinCenter = true
-springConst = 0.4
-meshType = 3
+springConst = 0.5
+meshType = 1
 
 [node name="DEBUG_ShearWireframe" type="MeshInstance3D" parent="MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
@@ -52,3 +54,7 @@ mesh = SubResource("ImmediateMesh_oqwcg")
 [node name="DEBUG_FlexionWireframe2" type="MeshInstance3D" parent="MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
 mesh = SubResource("ImmediateMesh_a6664")
+
+[node name="DEBUG_StructureWireframe3" type="MeshInstance3D" parent="MeshInstance3D"]
+material_override = SubResource("StandardMaterial3D_oqwcg")
+mesh = SubResource("ImmediateMesh_5t4e2")
