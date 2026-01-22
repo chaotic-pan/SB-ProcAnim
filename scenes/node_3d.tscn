@@ -42,9 +42,10 @@ transform = Transform3D(-0.77386224, 0.26927873, 0.573259, -0.6333537, -0.329017
 material_override = SubResource("StandardMaterial3D_xvgsr")
 mesh = SubResource("ImmediateMesh_xvgsr")
 script = ExtResource("3_oqwcg")
-draw = 3
+draw = 11
+gravity = 0.01
 springConst = 0.5
-meshType = 2
+meshType = 1
 
 [node name="DEBUG_ShearWireframe" type="MeshInstance3D" parent="MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
