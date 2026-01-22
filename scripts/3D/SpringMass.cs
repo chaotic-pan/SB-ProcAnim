@@ -10,7 +10,7 @@ public partial class SpringMass : MeshInstance3D
 	[Export(PropertyHint.Flags, "Wires:1,Shear:2,Flexion:4,Structure:8")] public int draw { get; set; } = 0;
 	[Export] private bool pinCenter;
 	[Export] private float springConst = 0.2f;
-	[Export(PropertyHint.Enum, "Ball, QuadBall, Box, Sheet")] public int meshType { get; set; }
+	[Export(PropertyHint.Enum, "Ball, QuadBall, Box, Trapezoid, Sheet")] public int meshType { get; set; }
 	private Mesh refMesh;
 	private readonly List<Vertex> verts = [];
 	private readonly List<Vertex> externalVerts = [];
@@ -25,7 +25,7 @@ public partial class SpringMass : MeshInstance3D
 	
 	public override void _Ready()
 	{
-		var obj = meshType==0? "ball" : meshType==1? "subcube" : meshType==2? "box" : "sheet";
+		var obj = meshType==0? "ball" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" : "sheet";
 		var path = "res://assets/" +obj+ ".obj";
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
 		mesh = Mesh as ImmediateMesh;
@@ -95,12 +95,8 @@ public partial class SpringMass : MeshInstance3D
 				
 			}
 		}
-
-		// add center spring point
-		var center = new Vertex(externalVerts);
-		verts.Add(center);
-		internalVerts.Add(center);
-		center.pin = pinCenter;
+		
+		Subdiv(externalVerts, 0);
 		
 		foreach (var quad in faces.Where(face=> face.Length == 5))
 		{
@@ -112,16 +108,44 @@ public partial class SpringMass : MeshInstance3D
 			ConnectSpring(a, c, Springs.shear);
 			ConnectSpring(b, d, Springs.shear);
 			
-			// face center points connected to center + corners
-			var e = new Vertex([a, b, c, d]);
-			verts.Add(e);
-			internalVerts.Add(e);
-			ConnectSpring(e, center, Springs.structure);
-			ConnectSpring(e, a, Springs.structure);
-			ConnectSpring(e, b, Springs.structure);
-			ConnectSpring(e, c, Springs.structure);
-			ConnectSpring(e, d, Springs.structure);
+			Subdiv([a,b,c,d, internalVerts[0]], 1);
+			
+			// // face center points connected to center + corners
+			// var e = new Vertex([a, b, c, d]);
+			// verts.Add(e);
+			// internalVerts.Add(e);
+			// ConnectSpring(e, center, Springs.structure);
+			// ConnectSpring(e, a, Springs.structure);
+			// ConnectSpring(e, b, Springs.structure);
+			// ConnectSpring(e, c, Springs.structure);
+			// ConnectSpring(e, d, Springs.structure);
 		}
+		
+		// foreach (var vert in externalVerts)
+		// {
+		// 	foreach (var flex in externalVerts)
+		// 	{
+		// 		if (vert.neighbors.ContainsKey(flex) ||vert.shear.ContainsKey(flex)) continue;
+		// 		ConnectSpring(vert, flex, Springs.flexion);
+		// 	}
+		// }
+	}
+
+	private void Subdiv(List<Vertex> section, int depth)
+	{
+		// get center point
+		var center = new Vertex(section);
+		verts.Add(center);
+		internalVerts.Add(center);
+		center.pin = pinCenter;
+
+		// connect to all verts
+		foreach (var vertex in section)
+		{
+			ConnectSpring(vertex, center, Springs.structure);
+		}
+		
+		// Subdiv(tetras(4 points), depth +1)  
 	}
 	
 	private void AddFace(int n, int a, int b, int c, int d)
@@ -201,7 +225,7 @@ public partial class SpringMass : MeshInstance3D
 		if ((draw&(1<<2)) != 0) // draw flexion
 		{
 			flexWires.SurfaceBegin(Mesh.PrimitiveType.Lines);
-			foreach (var vert in internalVerts)
+			foreach (var vert in externalVerts)
 			{
 				foreach (KeyValuePair<Vertex, float> flex in vert.flexion)
 				{
@@ -300,6 +324,8 @@ public partial class SpringMass : MeshInstance3D
 		{
 			if (vert.pin) continue;
 			var v = ToGlobal(vert.position);
+			if (v.Y == 0) continue;
+			
 			// apply forces
 			v += G * (float)delta; //Gravity
 			
@@ -310,29 +336,29 @@ public partial class SpringMass : MeshInstance3D
 		}	
 		
 		// pull face towards face center
-		foreach (var vert in internalVerts)
-		{
-			if (vert.pin) continue;
-			
-			var v = ToGlobal(vert.position);
-			var w = ToGlobal(vert.getConPos());
-			
-			var edge  = v - w;
-			var dif = edge.Length();
-			edge = edge.Normalized();
-			
-			v -= edge * (dif*springConst*2);
-			// ground plane collision
-			if (v.Y <= 0) v.Y = 0; 
-				
-			vert.position = ToLocal(v);
-		}
+		// foreach (var vert in internalVerts)
+		// {
+		// 	if (vert.pin) continue;
+		// 	
+		// 	var v = ToGlobal(vert.position);
+		// 	var w = ToGlobal(vert.getConPos());
+		// 	
+		// 	var edge  = v - w;
+		// 	var dif = edge.Length();
+		// 	edge = edge.Normalized();
+		// 	
+		// 	v -= edge * (dif*springConst*2);
+		// 	// ground plane collision
+		// 	if (v.Y <= 0) v.Y = 0; 
+		// 		
+		// 	vert.position = ToLocal(v);
+		// }
 		
 		 // SPRINGS
 		ConstrainSprings(internalVerts, Springs.structure);
 		ConstrainSprings(externalVerts, Springs.neighbour);
 		ConstrainSprings(externalVerts, Springs.shear);
-
+		
 		BuildMesh();
 	}
 
@@ -357,7 +383,7 @@ public partial class SpringMass : MeshInstance3D
 				var defRate = Math.Min(1, Math.Abs(1-(dif/neighbor.Value)));
 				
 				float sp = (vert.pin || neighbor.Key.pin)? 1 : 2;  // if one pinned, move other double
-				// if (springType == Springs.structure) sp *= 0.7f;
+				if (springType == Springs.structure) sp *= 0.5f;
 				if (!vert.pin) v -= edge * (dif*defRate/sp);
 				if (!neighbor.Key.pin) w += edge * (dif*defRate/sp);
 				// ground plane collision
