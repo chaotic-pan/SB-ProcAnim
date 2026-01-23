@@ -7,7 +7,7 @@ using FileAccess = Godot.FileAccess;
 
 public partial class SpringMass : MeshInstance3D
 {
-	[Export(PropertyHint.Flags, "Wires:1,Shear:2,Flexion:4,Structure:8")] public int draw { get; set; } = 0;
+	[Export(PropertyHint.Flags, "Wires:1,Shear:2,Structure:4")] public int draw { get; set; }
 	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;
@@ -16,12 +16,10 @@ public partial class SpringMass : MeshInstance3D
 	private readonly List<Vertex> verts = [];
 	private readonly List<Vertex> externalVerts = [];
 	private readonly List<Vertex> internalVerts = [];
-	private readonly List<Vector3> normals = [];
 	private readonly List<int[]> faces = [];
 	private static readonly NumberFormatInfo Ci = CultureInfo.InvariantCulture.NumberFormat;
 	private ImmediateMesh mesh;
 	private ImmediateMesh shearWires;
-	private ImmediateMesh flexWires;
 	private ImmediateMesh strucWires;
 	private Vector3 G;
 	
@@ -33,10 +31,9 @@ public partial class SpringMass : MeshInstance3D
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
 		mesh = Mesh as ImmediateMesh;
 		shearWires = GetChild<MeshInstance3D>(0).Mesh as ImmediateMesh;
-		flexWires = GetChild<MeshInstance3D>(1).Mesh as ImmediateMesh;
 		strucWires = GetChild<MeshInstance3D>(2).Mesh as ImmediateMesh;
 		
-		BuildMesh();
+		DrawMesh();
 	}
 
 	private void ReadInMesh(FileAccess file)
@@ -58,16 +55,6 @@ public partial class SpringMass : MeshInstance3D
 				var vert = new Vertex(ToGlobal(pos));
 				verts.Add(vert);
 				externalVerts.Add(vert);
-			}
-			// normals
-			else if (line.StartsWith("vn"))
-			{
-				var split = line.Split(' ');
-				normals.Add(new Vector3(
-					float.Parse(split[1],Ci),
-					float.Parse(split[2],Ci),
-					float.Parse(split[3],Ci)
-				));
 			}
 			else if (line.StartsWith("g"))
 			{
@@ -113,26 +100,7 @@ public partial class SpringMass : MeshInstance3D
 			ConnectSpring(b, d, Springs.shear);
 			
 			Subdiv([a,b,c,d, internalVerts[0]]);
-			
-			//CODE // face center points connected to center + corners
-			// var e = new Vertex([a, b, c, d]);
-			// verts.Add(e);
-			// internalVerts.Add(e);
-			// ConnectSpring(e, center, Springs.structure);
-			// ConnectSpring(e, a, Springs.structure);
-			// ConnectSpring(e, b, Springs.structure);
-			// ConnectSpring(e, c, Springs.structure);
-			// ConnectSpring(e, d, Springs.structure);
 		}
-		
-		// CODE foreach (var vert in externalVerts)
-		// {
-		// 	foreach (var flex in externalVerts)
-		// 	{
-		// 		if (vert.neighbors.ContainsKey(flex) ||vert.shear.ContainsKey(flex)) continue;
-		// 		ConnectSpring(vert, flex, Springs.flexion);
-		// 	}
-		// }
 	}
 
 	private void Subdiv(List<Vertex> section)
@@ -184,10 +152,6 @@ public partial class SpringMass : MeshInstance3D
 				a.shear.TryAdd(b, ab);
 				b.shear.TryAdd(a, ab);
 				return;
-			case Springs.flexion:
-				a.flexion.TryAdd(b, ab);
-				b.flexion.TryAdd(a, ab);
-				return;
 			case Springs.structure:
 				a.structure.TryAdd(b, ab);
 				b.structure.TryAdd(a, ab);
@@ -196,7 +160,7 @@ public partial class SpringMass : MeshInstance3D
 		
 	}
 
-	private void BuildMesh()
+	private void DrawMesh()
 	{
 		mesh.ClearSurfaces();
 		shearWires.ClearSurfaces();
@@ -222,28 +186,6 @@ public partial class SpringMass : MeshInstance3D
 				}
 			}
 			shearWires.SurfaceEnd();
-		}
-		flexWires.ClearSurfaces();
-		if ((draw&(1<<2)) != 0) // draw flexion
-		{
-			flexWires.SurfaceBegin(Mesh.PrimitiveType.Lines);
-			foreach (var vert in externalVerts)
-			{
-				foreach (KeyValuePair<Vertex, float> flex in vert.flexion)
-				{
-					var a = ToLocal(vert.position);
-					var b = ToLocal(flex.Key.position);
-
-					var dif = (a - b).Length() - flex.Value;
-					if (dif > flex.Value * springConst) flexWires.SurfaceSetColor(Colors.Orange);
-					else if (dif < flex.Value * -springConst) flexWires.SurfaceSetColor(Colors.LimeGreen);
-					else flexWires.SurfaceSetColor(Colors.Yellow);
-
-					flexWires.SurfaceAddVertex(a);
-					flexWires.SurfaceAddVertex(b);
-				}
-			}
-			flexWires.SurfaceEnd();
 		}
 		strucWires.ClearSurfaces();
 		if ((draw&(1<<3)) != 0) // draw structure
@@ -297,22 +239,27 @@ public partial class SpringMass : MeshInstance3D
 			mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
             foreach (int[] face in faces)
             {
-	            var a = ToLocal(verts[face[1]].position);
-            	var b = ToLocal(verts[face[2]].position);
-            	var c = ToLocal(verts[face[3]].position);
-            	// m.SurfaceSetNormal(normals[face[0]]);
-            	mesh.SurfaceSetNormal((b-c).Cross(a-c));
-            	mesh.SurfaceAddVertex(a);
-            	mesh.SurfaceAddVertex(b);
-            	mesh.SurfaceAddVertex(c);
+	            var a = verts[face[1]].position;
+            	var b = verts[face[2]].position;
+            	var c = verts[face[3]].position;
+	            var n = internalVerts[0].position-((a+b+c)/3);
+            	mesh.SurfaceSetNormal(n);
 	            
 	            if (face.Length == 5)
 	            {
-		            var d = ToLocal(verts[face[4]].position);
-		            mesh.SurfaceAddVertex(a);
-		            mesh.SurfaceAddVertex(c);
-		            mesh.SurfaceAddVertex(d);
+		            var d = verts[face[4]].position;
+		            n = internalVerts[0].position-((a+c)/2);
+		            mesh.SurfaceSetNormal(n);
+		            mesh.SurfaceAddVertex(ToLocal(d));
+		            mesh.SurfaceAddVertex(ToLocal(c));
+		            mesh.SurfaceAddVertex(ToLocal(a));
 	            }
+            	
+            	mesh.SurfaceAddVertex(ToLocal(c));
+            	mesh.SurfaceAddVertex(ToLocal(b));
+            	mesh.SurfaceAddVertex(ToLocal(a));
+	            
+	           
             }
 		}
 		
@@ -341,26 +288,7 @@ public partial class SpringMass : MeshInstance3D
 			
 		}	
 		
-		//CODE // pull face towards face center
-		// foreach (var vert in internalVerts)
-		// {
-		// 	if (vert.pin) continue;
-		// 	
-		// 	var v = ToGlobal(vert.position);
-		// 	var w = ToGlobal(vert.getConPos());
-		// 	
-		// 	var edge  = v - w;
-		// 	var dif = edge.Length();
-		// 	edge = edge.Normalized();
-		// 	
-		// 	v -= edge * (dif*springConst*2);
-		// 	// ground plane collision
-		// 	if (v.Y <= 0) v.Y = 0; 
-		// 		
-		// 	vert.position = ToLocal(v);
-		// }
-		
-		//CODE SPRINGS
+		// SPRINGS
 		ConstrainSprings(internalVerts, Springs.structure);
 		ConstrainSprings(externalVerts, Springs.neighbour);
 		ConstrainSprings(externalVerts, Springs.shear);
@@ -382,7 +310,7 @@ public partial class SpringMass : MeshInstance3D
 			
 		}
 		
-		BuildMesh();
+		DrawMesh();
 	}
 
 	private void ConstrainSprings(List<Vertex> vertices, Springs springType)
@@ -390,8 +318,7 @@ public partial class SpringMass : MeshInstance3D
 		foreach (var vert in vertices)
 		{
 			var list = springType==Springs.neighbour? vert.neighbors : 
-											springType==Springs.shear? vert.shear : 
-											springType==Springs.flexion? vert.flexion : vert.structure;
+											springType==Springs.shear? vert.shear : vert.structure;
 			foreach (KeyValuePair<Vertex, float> neighbor in list)
 			{
 				var v = vert.position;
@@ -423,7 +350,6 @@ internal enum Springs
 {
 	neighbour,
 	shear,
-	flexion,
 	structure
 }
 
@@ -433,9 +359,7 @@ class Vertex
 	public Vector3 prevPos;
 	public readonly Dictionary<Vertex, float> neighbors = new ();
 	public readonly Dictionary<Vertex, float> shear = new();
-	public readonly Dictionary<Vertex, float> flexion = new();
 	public readonly Dictionary<Vertex, float> structure = new();
-	public readonly List<Vertex> constructed;
 	public bool pin;
 
 	public Vertex(Vector3 position)
@@ -446,15 +370,8 @@ class Vertex
 	
 	public Vertex(List<Vertex> constructed)
 	{
-		this.constructed = constructed;
-		position = getConPos();
+		position = (constructed.Aggregate(Vector3.Zero, (current, v) => current + v.position))/constructed.Count;
 		prevPos = position;
-	}
-	
-	public Vector3 getConPos()
-	{
-		var conPos  = constructed.Aggregate(Vector3.Zero, (current, v) => current + v.position);
-		return conPos/constructed.Count;
 	}
 
 }
