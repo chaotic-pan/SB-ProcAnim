@@ -1,13 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://cfrhyxgrw488v"]
+[gd_scene load_steps=11 format=3 uid="uid://cfrhyxgrw488v"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://addons/3d_rts_camera/rtscam.tscn" id="1_a202f"]
 [ext_resource type="PackedScene" uid="uid://iohv2d523ol2" path="res://scenes/floor.tscn" id="2_xvgsr"]
 [ext_resource type="Script" uid="uid://4lj1usdw268t" path="res://scripts/3D/SpringMass.cs" id="3_oqwcg"]
+[ext_resource type="PackedScene" uid="uid://o0ubwchid6l3" path="res://scenes/Rig.tscn" id="3_xvgsr"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xvgsr"]
 transparency = 1
 vertex_color_use_as_albedo = true
-albedo_color = Color(1, 1, 1, 0.76862746)
+albedo_color = Color(1, 1, 1, 0.8117647)
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_xvgsr"]
 
@@ -26,6 +27,7 @@ albedo_color = Color(0.79607844, 0.79607844, 0.79607844, 1)
 
 [node name="RTScamera" parent="." instance=ExtResource("1_a202f")]
 visible = false
+current = true
 camera_zoom_speed = 100.0
 camera_zoom_min = 2.0
 camera_zoom_max = 20.0
@@ -36,24 +38,49 @@ transform = Transform3D(0.9998855, 0.015131427, 0, -0.015131427, 0.9998855, 0, 0
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.65482247, -0.5058964, 0.5614948, -0.14024988, 0.6486897, 0.7480185, -0.7426558, -0.5685689, 0.35382462, 4.0983114, 7.297699, 5.012764)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(-0.77386224, 0.26927873, 0.573259, -0.6333537, -0.32901782, -0.70043564, 0, -0.90511656, 0.42516324, 0, 3.5175397, 0)
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.5832033, -0.1925936, -0.78916514, 0.7951195, -0.33423752, -0.50603384, -0.16630973, -0.9226012, 0.34806332, -5.6282797, 7.297699, -5.660892)
+light_color = Color(0.99999994, 0.91506034, 0.7650866, 1)
+light_energy = 0.231
+light_indirect_energy = 0.232
+
+[node name="BONE" parent="." instance=ExtResource("3_xvgsr")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0.17125797, 0)
+
+[node name="Armature" parent="BONE" index="0"]
+transform = Transform3D(100, 0, 0, 0, -1.1920929e-05, 99.99999, 0, -99.99999, -1.1920929e-05, 0, 1.4937526, 0)
+
+[node name="Skeleton3D" parent="BONE/Armature" index="0"]
+bones/0/position = Vector3(-0.005, 0, 0.005)
+
+[node name="BoneAttachment3D" parent="BONE/Armature/Skeleton3D" index="1"]
+transform = Transform3D(1.1920929e-07, 1, -1.1920928e-07, 0, -1.1920929e-07, -0.99999994, -1, 1.1920929e-07, 0, -0.005, 0, 0.005)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BONE/Armature/Skeleton3D/BoneAttachment3D" index="0"]
+transform = Transform3D(0.0012667071, 0.0006580355, 0.0014008716, -0.0015477247, 0.0005385571, 0.0011465179, 3.3499856e-11, -0.0018102337, 0.0008503264, -0.0002125646, -3.616049e-10, -0.0032459255)
 material_override = SubResource("StandardMaterial3D_xvgsr")
 mesh = SubResource("ImmediateMesh_xvgsr")
+skeleton = NodePath("../../../../..")
 script = ExtResource("3_oqwcg")
 draw = 10
+pinCenter = true
 gravity = 0.01
-springConst = 0.7
-meshType = 1
+springConst = 0.1
+meshType = 3
 
-[node name="DEBUG_ShearWireframe" type="MeshInstance3D" parent="MeshInstance3D"]
+[node name="DEBUG_ShearWireframe" type="MeshInstance3D" parent="BONE/Armature/Skeleton3D/BoneAttachment3D/MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
 mesh = SubResource("ImmediateMesh_oqwcg")
 
-[node name="DEBUG_FlexionWireframe2" type="MeshInstance3D" parent="MeshInstance3D"]
+[node name="DEBUG_FlexionWireframe2" type="MeshInstance3D" parent="BONE/Armature/Skeleton3D/BoneAttachment3D/MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
 mesh = SubResource("ImmediateMesh_a6664")
 
-[node name="DEBUG_StructureWireframe3" type="MeshInstance3D" parent="MeshInstance3D"]
+[node name="DEBUG_StructureWireframe3" type="MeshInstance3D" parent="BONE/Armature/Skeleton3D/BoneAttachment3D/MeshInstance3D"]
 material_override = SubResource("StandardMaterial3D_oqwcg")
 mesh = SubResource("ImmediateMesh_5t4e2")
+
+[node name="AnimationPlayer" parent="BONE" index="1"]
+movie_quit_on_finish = true
+
+[editable path="BONE"]

@@ -22,9 +22,11 @@ public partial class SpringMass : MeshInstance3D
 	private ImmediateMesh shearWires;
 	private ImmediateMesh strucWires;
 	private Vector3 G;
+	private Vector3 lastPos;
 	
 	public override void _Ready()
 	{
+		lastPos = GlobalPosition;
 		G = new Vector3(0, -gravity, 0);
 		var obj = meshType==0? "ball" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" : "sheet";
 		var path = "res://assets/" +obj+ ".obj";
@@ -188,7 +190,7 @@ public partial class SpringMass : MeshInstance3D
 			shearWires.SurfaceEnd();
 		}
 		strucWires.ClearSurfaces();
-		if ((draw&(1<<3)) != 0) // draw structure
+		if ((draw&(1<<2)) != 0) // draw structure
 		{
 			strucWires.SurfaceBegin(Mesh.PrimitiveType.Lines);
 			foreach (var vert in internalVerts)
@@ -270,8 +272,13 @@ public partial class SpringMass : MeshInstance3D
 	{
 		foreach (var vert in verts)
 		{
-			if (vert.pin) continue;
 			if (vert.position.Y == 0) continue;
+			if (vert.pin)
+			{
+				var move = GlobalPosition - lastPos;
+				vert.position += move;
+				continue;
+			}
 			
 			// EULER	newPos = pos + velocity;	newVel = velocity + acceleration
 			
@@ -311,6 +318,7 @@ public partial class SpringMass : MeshInstance3D
 		}
 		
 		DrawMesh();
+		lastPos = GlobalPosition;
 	}
 
 	private void ConstrainSprings(List<Vertex> vertices, Springs springType)
