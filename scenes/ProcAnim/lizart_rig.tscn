@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://5sf1kriamr1o"]
+
+[ext_resource type="PackedScene" uid="uid://rh8uv3m63jtp" path="res://assets/lizartRig.glb" id="1_g2pyt"]
+[ext_resource type="Script" uid="uid://ch3hl22vksgtq" path="res://scripts/3D/LizartRig.cs" id="2_oijfm"]
+
+[node name="lizartRig" instance=ExtResource("1_g2pyt")]
+script = ExtResource("2_oijfm")

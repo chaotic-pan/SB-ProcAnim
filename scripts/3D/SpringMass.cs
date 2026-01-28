@@ -10,6 +10,7 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 	private Vector3 lastPos;
 	
 	private MeshVisualizer meshVisualizer;
+	private MeshVisualizer wireVisualizer;
 	private MeshVisualizer shearMV;
 	private MeshVisualizer structureMV;
 
@@ -18,6 +19,8 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 		lastPos = GlobalPosition;
 		meshVisualizer = new MeshVisualizer();
 		AddChild(meshVisualizer);
+		wireVisualizer = new MeshVisualizer();
+		AddChild(wireVisualizer);
 		shearMV = new MeshVisualizer();
 		AddChild(shearMV);
 		structureMV = new MeshVisualizer();
@@ -28,44 +31,14 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 
 	private void DrawMesh()
 	{
-		if ((draw&(1<<1)) != 0) shearMV.drawWires(externalVerts, Springs.shear, Colors.Turquoise);
+		if ((draw&(1<<2)) != 0) shearMV.drawWires(externalVerts, Springs.shear, Colors.Turquoise);
 		else shearMV.clear();
 		
-		if ((draw&(1<<2)) != 0) structureMV.drawWires(internalVerts, Springs.structure, Colors.Magenta);
+		if ((draw&(1<<3)) != 0) structureMV.drawWires(internalVerts, Springs.structure, Colors.Magenta);
 		else structureMV.clear();
 		
-		meshVisualizer.drawWires(externalVerts, Springs.neighbour, Colors.White);
-		
-		//CODE else // draw mesh
-		//{ 
-		//	mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
-        //    foreach (int[] face in faces)
-        //    {
-	    //        var a = verts[face[1]].position;
-        //    	var b = verts[face[2]].position;
-        //    	var c = verts[face[3]].position;
-	    //        var n = internalVerts[0].position-((a+b+c)/3);
-        //    	mesh.SurfaceSetNormal(n);
-	    //        
-	    //        if (face.Length == 5)
-	    //        {
-		//            var d = verts[face[4]].position;
-		//            n = internalVerts[0].position-((a+c)/2);
-		//            mesh.SurfaceSetNormal(n);
-		//            mesh.SurfaceAddVertex(ToLocal(d));
-		//            mesh.SurfaceAddVertex(ToLocal(c));
-		//            mesh.SurfaceAddVertex(ToLocal(a));
-	    //        }
-        //    	
-        //    	mesh.SurfaceAddVertex(ToLocal(c));
-        //    	mesh.SurfaceAddVertex(ToLocal(b));
-        //    	mesh.SurfaceAddVertex(ToLocal(a));
-	    //        
-	    //       
-        //    }
-		//}
-		//
-		//mesh.SurfaceEnd();
+		if ((draw&(1<<1)) != 0) wireVisualizer.drawWires(externalVerts, Springs.neighbour, Colors.White);
+		if ((draw&(1<<0)) != 0) meshVisualizer.drawMesh(faces, externalVerts, internalVerts[0]);
 	}
 	
 	public override void _PhysicsProcess(double delta) 

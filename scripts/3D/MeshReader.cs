@@ -8,7 +8,7 @@ using FileAccess = Godot.FileAccess;
 
 public partial class MeshReader : Node3D
 {
-	[Export(PropertyHint.Flags, "Wires:1,Shear:2,Structure:4")] public int draw { get; set; }
+	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
 	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;

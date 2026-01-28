@@ -12,6 +12,8 @@ public partial class MeshVisualizer : MeshInstance3D
 		var mat = new StandardMaterial3D();
 		mat.VertexColorUseAsAlbedo = true;
 		mat.ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
+		mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+		mat.AlbedoColor = new Color(1, 1, 1, 0.5f);
 		MaterialOverride = mat;
 	}
 
@@ -49,6 +51,36 @@ public partial class MeshVisualizer : MeshInstance3D
 		mesh.SurfaceEnd();
 	}
 
+	public void drawMesh(List<int[]> faces, List<Vertex> verts, Vertex center)
+	{
+		mesh.ClearSurfaces();
+		mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+		foreach (int[] face in faces)
+		{
+			var a = verts[face[0]].position;
+			var b = verts[face[1]].position;
+			var c = verts[face[2]].position;
+			var n = center.position-((a+b+c)/3);
+			mesh.SurfaceSetNormal(n);
+		        
+			if (face.Length == 4)
+			{
+				var d = verts[face[3]].position;
+				n = center.position-((a+c)/2);
+				mesh.SurfaceSetNormal(n);
+				mesh.SurfaceAddVertex(ToLocal(d));
+				mesh.SurfaceAddVertex(ToLocal(c));
+				mesh.SurfaceAddVertex(ToLocal(a));
+			}
+		    	
+			mesh.SurfaceAddVertex(ToLocal(c));
+			mesh.SurfaceAddVertex(ToLocal(b));
+			mesh.SurfaceAddVertex(ToLocal(a));
+		}
+		
+		mesh.SurfaceEnd();
+	}
+	
 	public void clear()
 	{
 		mesh.ClearSurfaces();
