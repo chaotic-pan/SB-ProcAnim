@@ -1,13 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Godot;
+using Godot.Collections;
 using FileAccess = Godot.FileAccess;
+
+public class SoftMesh(string meshName, List<Vertex> verts, List<Vertex> externalVerts, List<Vertex> internalVerts, List<int[]> faces)
+{
+	public string meshName = meshName; 
+	public List<Vertex> verts = verts; 
+	public List<Vertex> externalVerts = externalVerts; 
+	public List<Vertex> internalVerts = internalVerts; 
+	public List<int[]> faces = faces;
+}
 
 public partial class MeshReader : Node3D
 {
+	[Export] private Script addedScript;
+	private Array<Node> bones;
 	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
 	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
@@ -15,21 +26,28 @@ public partial class MeshReader : Node3D
 	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet")] public int meshType { get; set; }
 	private static readonly NumberFormatInfo Ci = CultureInfo.InvariantCulture.NumberFormat;
 
-	private List<SpringMass> objects = [];
+	private List<SoftMesh> objects = [];
 	
 	public override void _Ready()
 	{
 		var obj = meshType==0? "lizart" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" : "sheet";
 		var path = "res://assets/" +obj+ ".obj";
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
+		
+		bones = FindChildren("", "BoneAttachment3D");
+
+		GD.Print(bones[0].GetName());
+		bones[0].SetScript(addedScript);
+		bones[0].SetProcess(true);
+		(bones[0] as MeshReplacer)?.Init(objects[0]);
 	}
 
 	public override void _Process(double delta)
 	{
-		foreach (var obj in objects)
-		{
-			obj.draw = draw;
-		}
+		//Code foreach (var obj in objects)
+		// {
+		// 	obj.draw = draw;
+		// }
 	}
 
 	private void ReadInMesh(FileAccess file)
@@ -120,11 +138,12 @@ public partial class MeshReader : Node3D
 			internalVerts.Add(newVert);
 		}
 		
-		var springMass = new SpringMass(draw, gravity, springConst, verts, externalVerts, internalVerts, faces);
-		objects.Add(springMass);
-		AddChild(springMass);
-		springMass.Name =  meshName;
+		//Code var springMass = new SpringMass(draw, gravity, springConst, verts, externalVerts, internalVerts, faces);
+		// objects.Add(springMass);
+		// AddChild(springMass);
+		// springMass.Name =  meshName;
 		
+		objects.Add(new SoftMesh(meshName, verts, externalVerts, internalVerts, faces));
 	}
 
 	private Vertex Subdiv(List<Vertex> section)

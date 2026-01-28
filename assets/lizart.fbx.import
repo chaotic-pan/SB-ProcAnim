@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://rh8uv3m63jtp"
-path="res://.godot/imported/lizartRig.glb-02d44488e3a9583a2bf2874039fcaa37.scn"
+uid="uid://bgttvkc3te0fe"
+path="res://.godot/imported/lizart.fbx-de60bc7a104ee586740522b70697bac1.scn"
 
 [deps]
 
-source_file="res://assets/lizartRig.glb"
-dest_files=["res://.godot/imported/lizartRig.glb-02d44488e3a9583a2bf2874039fcaa37.scn"]
+source_file="res://assets/lizart.fbx"
+dest_files=["res://.godot/imported/lizart.fbx-de60bc7a104ee586740522b70697bac1.scn"]
 
 [params]
 
@@ -30,7 +30,7 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=false
+animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
@@ -38,5 +38,7 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
-gltf/naming_version=2
-gltf/embedded_image_handling=1
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1
+fbx/naming_version=2

@@ -13,7 +13,7 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 	private MeshVisualizer wireVisualizer;
 	private MeshVisualizer shearMV;
 	private MeshVisualizer structureMV;
-
+	
 	public override void _Ready()
 	{
 		lastPos = GlobalPosition;

@@ -1,44 +1,34 @@
-[gd_scene load_steps=5 format=3 uid="uid://cfrhyxgrw488v"]
+[gd_scene format=3 uid="uid://cfrhyxgrw488v"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://addons/3d_rts_camera/rtscam.tscn" id="1_a202f"]
 [ext_resource type="PackedScene" uid="uid://iohv2d523ol2" path="res://scenes/floor.tscn" id="2_xvgsr"]
-[ext_resource type="PackedScene" uid="uid://5sf1kriamr1o" path="res://scenes/ProcAnim/lizart_rig.tscn" id="3_5t4e2"]
+[ext_resource type="PackedScene" uid="uid://dpo3sjt50nih4" path="res://scenes/lizart.tscn" id="3_5t4e2"]
+[ext_resource type="Script" uid="uid://4lj1usdw268t" path="res://scripts/3D/MeshReader.cs" id="4_oqwcg"]
+[ext_resource type="Script" uid="uid://buxkbx4yrumj2" path="res://scripts/3D/MeshReplacer.cs" id="5_oqwcg"]
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_5t4e2"]
-top_radius = 0.01
-bottom_radius = 0.1
-height = 1.0
+[node name="Node3D" type="Node3D" unique_id=155286603]
 
-[node name="Node3D" type="Node3D"]
-
-[node name="RTScamera" parent="." instance=ExtResource("1_a202f")]
+[node name="RTScamera" parent="." unique_id=1720549150 instance=ExtResource("1_a202f")]
 visible = false
 current = true
 camera_zoom_speed = 100.0
 camera_zoom_min = 2.0
 camera_zoom_max = 20.0
 
-[node name="floor" parent="." instance=ExtResource("2_xvgsr")]
+[node name="floor" parent="." unique_id=879467039 instance=ExtResource("2_xvgsr")]
 transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, -0.1, 0)
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=50058955]
 transform = Transform3D(0.65482247, -0.5058964, 0.5614948, -0.14024988, 0.6486897, 0.7480185, -0.7426558, -0.5685689, 0.35382462, 4.0983114, 7.297699, 5.012764)
 
-[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." unique_id=75489869]
 transform = Transform3D(-0.5832033, -0.1925936, -0.78916514, 0.7951195, -0.33423752, -0.50603384, -0.16630973, -0.9226012, 0.34806332, -5.6282797, 7.297699, -5.660892)
 light_color = Color(0.99999994, 0.91506034, 0.7650866, 1)
 light_energy = 0.231
 light_indirect_energy = 0.232
 
-[node name="lizartRig" parent="." instance=ExtResource("3_5t4e2")]
+[node name="lizart" parent="." unique_id=1323175947 instance=ExtResource("3_5t4e2")]
+script = ExtResource("4_oqwcg")
+addedScript = ExtResource("5_oqwcg")
 
-[node name="BoneAttachment3D" type="BoneAttachment3D" parent="lizartRig/A_Lizart_001/Skeleton3D" index="0"]
-transform = Transform3D(0.9999996, 1.7881393e-07, -1.0430813e-06, -9.834766e-07, 0.007336028, -0.99997306, -1.4901161e-07, 0.99997294, 0.0073359758, -6.934107e-08, 0.78301734, -0.75144076)
-bone_name = "Body"
-bone_idx = 5
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="lizartRig/A_Lizart_001/Skeleton3D/BoneAttachment3D"]
-transform = Transform3D(1, 8.881784e-16, -8.174017e-15, 8.881784e-16, 1, 0, -8.187895e-15, -4.656613e-10, 1, -5.8298497e-08, 0.8131583, 0.021621943)
-mesh = SubResource("CylinderMesh_5t4e2")
-
-[editable path="lizartRig"]
+[editable path="lizart"]
