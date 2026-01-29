@@ -878,14 +878,14 @@ transform = Transform3D(1, -4.367163e-08, -1.6047619e-06, -1.9539925e-14, -0.999
 mesh = SubResource("ArrayMesh_y6v30")
 skeleton = NodePath("")
 
-[node name="Head2" type="BoneAttachment3D" parent="A_Lizart/Skeleton3D/Body" unique_id=1328368154]
+[node name="Head" type="BoneAttachment3D" parent="A_Lizart/Skeleton3D/Body" unique_id=1328368154]
 transform = Transform3D(100, 8.5253105e-06, -7.9818245e-05, -7.5958465e-05, -22.107977, -97.525536, -2.5960551e-05, 97.52556, -22.107983, 2.0900937e-07, 0.91572005, 1.3907449)
 bone_name = "Head"
 bone_idx = 4
 use_external_skeleton = true
 external_skeleton = NodePath("../..")
 
-[node name="Head2" type="MeshInstance3D" parent="A_Lizart/Skeleton3D/Body/Head2" unique_id=1399497654]
+[node name="Head2" type="MeshInstance3D" parent="A_Lizart/Skeleton3D/Body/Head" unique_id=1399497654]
 transform = Transform3D(1, 1.72183e-07, -7.595549e-07, 1.4210855e-14, -0.97525585, -0.22108, -7.7882646e-07, 0.22108005, -0.97525567, 9.35002e-09, -0.011538851, 0.012005269)
 mesh = SubResource("ArrayMesh_uq8gf")
 skeleton = NodePath("")

@@ -23,23 +23,30 @@ public partial class MeshReader : Node3D
 	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;
-	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet")] public int meshType { get; set; }
+	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet, Test")] public int meshType { get; set; }
 	private static readonly NumberFormatInfo Ci = CultureInfo.InvariantCulture.NumberFormat;
 
 	private List<SoftMesh> objects = [];
+	private SpringMass springMass;
 	
 	public override void _Ready()
 	{
-		var obj = meshType==0? "lizart" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" : "sheet";
+		var obj = meshType==0? "lizartRef" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" 
+			: meshType==4? "sheet" : "test";
 		var path = "res://assets/" +obj+ ".obj";
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
 		
 		bones = FindChildren("", "BoneAttachment3D");
 
-		GD.Print(bones[0].GetName());
-		bones[0].SetScript(addedScript);
-		bones[0].SetProcess(true);
-		(bones[0] as MeshReplacer)?.Init(objects[0]);
+		for (int i = 0; i < bones.Count; i++)
+		{
+			bones[i].SetScript(addedScript);
+			bones[i].SetProcess(true);
+			
+			var name = bones[i].GetName();
+			var mesh = objects.Find(mesh => mesh.meshName.Equals(name));
+			(bones[i] as MeshReplacer)?.Init(mesh);
+		}
 	}
 
 	public override void _Process(double delta)
@@ -57,10 +64,10 @@ public partial class MeshReader : Node3D
 		var verts = new List<Vertex>();
 		var faces = new List<int[]>();
 		int reset = 1;
-		
+		var j = 0;
 		foreach (string line in content)
 		{
-			// new  object start 
+			// new object start 
 			if (line.StartsWith("o "))
 			{
 				if (meshName != null)
@@ -68,9 +75,9 @@ public partial class MeshReader : Node3D
 					ReadInObject(meshName, verts, faces);
 					reset += verts.Count;
 				}
-				meshName = line.Substring(2);
-				verts.Clear();
-				faces.Clear();
+				meshName = line.Substring(2).Replace(".", "_");
+				verts = [];
+				faces = [];
 			}
 			// vertices
 			else if (line.StartsWith("v "))
@@ -81,7 +88,7 @@ public partial class MeshReader : Node3D
 					float.Parse(split[2], Ci),
 					float.Parse(split[3], Ci)
 				);
-				var vert = new Vertex(ToGlobal(pos));
+				var vert = new Vertex(pos);
 				verts.Add(vert);
 			}
 			// faces
@@ -102,12 +109,12 @@ public partial class MeshReader : Node3D
 					AddFace(verts[a], verts[b], verts[c], verts[d]);
 					faces.Add([a, b, c, d]);
 				}
-				else // triangle
-				{
-					if (split.Length > 5) GD.PushWarning($"Mesh {meshName} contains Triangles");
-					AddFace(verts[a], verts[b], verts[c], null);
-					faces.Add([a, b, c]);
-				}
+			//CODE 	else // triangle
+			// 	{
+			// 		if (split.Length > 5) GD.PushWarning($"Mesh {meshName} contains Triangles");
+			// 		AddFace(verts[a], verts[b], verts[c], null);
+			// 		faces.Add([a, b, c]);
+			// 	}
 			}
 		}
 		ReadInObject(meshName, verts, faces);
@@ -137,11 +144,6 @@ public partial class MeshReader : Node3D
 			verts.Add(newVert);
 			internalVerts.Add(newVert);
 		}
-		
-		//Code var springMass = new SpringMass(draw, gravity, springConst, verts, externalVerts, internalVerts, faces);
-		// objects.Add(springMass);
-		// AddChild(springMass);
-		// springMass.Name =  meshName;
 		
 		objects.Add(new SoftMesh(meshName, verts, externalVerts, internalVerts, faces));
 	}

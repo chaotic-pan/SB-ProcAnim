@@ -25,7 +25,6 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 		AddChild(shearMV);
 		structureMV = new MeshVisualizer();
 		AddChild(structureMV);
-		
 		DrawMesh();
 	}
 

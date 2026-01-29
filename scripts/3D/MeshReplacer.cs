@@ -7,48 +7,60 @@ public partial class MeshReplacer : Node3D
     private SoftMesh softMesh;
     public void Init(SoftMesh softMesh)
     {
-        GD.Print($"hii form {GetName()}");
         mesh = new ImmediateMesh();
-        GetChild<MeshInstance3D>(0).Mesh = mesh;
-        // var mat = new StandardMaterial3D();
-        // mat.VertexColorUseAsAlbedo = true;
-        // mat.ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
-        // mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
-        // mat.AlbedoColor = new Color(1, 1, 1, 0.5f);
-        // MaterialOverride = mat;
+        var meshNode = GetChild<MeshInstance3D>(0);
+        meshNode.Mesh = mesh;
         this.softMesh = softMesh;
         drawMesh();
-
+        meshNode.GlobalPosition = Vector3.Zero;
+        meshNode.GlobalRotation = Vector3.Zero;
+        meshNode.Scale = Vector3.One;
     }
     
     public void drawMesh()
     {
         mesh.ClearSurfaces();
         mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+        
         foreach (int[] face in softMesh.faces)
         {
             var a = softMesh.verts[face[0]].position;
             var b = softMesh.verts[face[1]].position;
             var c = softMesh.verts[face[2]].position;
-            var n = softMesh.internalVerts[0].position-((a+b+c)/3);
+               var d = softMesh.verts[face[3]].position;
+               
+                
+            var n = -(c-d).Cross(a-d);
+                
             mesh.SurfaceSetNormal(n);
 		        
-            if (face.Length == 4)
-            {
-                var d = softMesh.verts[face[3]].position;
-                n = softMesh.internalVerts[0].position-((a+c)/2);
-                mesh.SurfaceSetNormal(n);
-                mesh.SurfaceAddVertex(ToLocal(d));
-                mesh.SurfaceAddVertex(ToLocal(c));
-                mesh.SurfaceAddVertex(ToLocal(a));
-            }
+            // if (face.Length == 4)
+            // {
+            //     mesh.SurfaceSetNormal(n);
+            // }
+
+            
+            a = convertCoord(a);
+            b = convertCoord(b);
+            c = convertCoord(c);
+            d = convertCoord(d);
+            
 		    	
-            mesh.SurfaceAddVertex(ToLocal(c));
-            mesh.SurfaceAddVertex(ToLocal(b));
-            mesh.SurfaceAddVertex(ToLocal(a));
+                mesh.SurfaceAddVertex(d);
+                mesh.SurfaceAddVertex(c);
+                mesh.SurfaceAddVertex(a);
+            mesh.SurfaceAddVertex(c);
+            mesh.SurfaceAddVertex(b);
+            mesh.SurfaceAddVertex(a);
         }
 		
         mesh.SurfaceEnd();
     }
 
+
+    private Vector3 convertCoord(Vector3 coord)
+    { 
+        coord /= Scale; 
+        return coord;
+    }
 }
