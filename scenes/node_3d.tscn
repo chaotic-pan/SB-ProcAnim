@@ -35,7 +35,7 @@ light_indirect_energy = 0.232
 [node name="lizart" parent="." unique_id=1323175947 instance=ExtResource("3_5t4e2")]
 script = ExtResource("4_oqwcg")
 addedScript = ExtResource("5_oqwcg")
-draw = 1
+draw = 3
 
 [node name="Lizart" type="MeshInstance3D" parent="." unique_id=1371253494]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0035514832, -0.0011918396, -0.0010027587)

@@ -37,7 +37,7 @@ public partial class SpringMass(int draw, float gravity, float springConst,
 		else structureMV.clear();
 		
 		if ((draw&(1<<1)) != 0) wireVisualizer.drawWires(externalVerts, Springs.neighbour, Colors.White);
-		if ((draw&(1<<0)) != 0) meshVisualizer.drawMesh(faces, externalVerts, internalVerts[0]);
+		// if ((draw&(1<<0)) != 0) meshVisualizer.drawMesh(faces, externalVerts, internalVerts[0]);
 	}
 	
 	public override void _PhysicsProcess(double delta) 

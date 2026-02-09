@@ -18,7 +18,6 @@ public class SoftMesh(string meshName, List<Vertex> verts, List<Vertex> external
 public partial class MeshReader : Node3D
 {
 	[Export] private Script addedScript;
-	private Array<Node> bones;
 	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
 	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
@@ -26,6 +25,7 @@ public partial class MeshReader : Node3D
 	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet, Test")] public int meshType { get; set; }
 	private static readonly NumberFormatInfo Ci = CultureInfo.InvariantCulture.NumberFormat;
 
+	private Array<MeshReplacer> bones = [];
 	private List<SoftMesh> objects = [];
 	private SpringMass springMass;
 	
@@ -36,25 +36,26 @@ public partial class MeshReader : Node3D
 		var path = "res://assets/" +obj+ ".obj";
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
 		
-		bones = FindChildren("", "BoneAttachment3D");
-
-		for (int i = 0; i < bones.Count; i++)
+		var boneAtts = FindChildren("", "BoneAttachment3D");
+		for (int i = 0; i < boneAtts.Count; i++)
 		{
-			bones[i].SetScript(addedScript);
-			bones[i].SetProcess(true);
-			
-			var name = bones[i].GetName();
+			boneAtts[i].SetScript(addedScript);
+			boneAtts[i].SetProcess(true);
+
+			var bone = boneAtts[i] as MeshReplacer;
+			var name = bone.GetName();
 			var mesh = objects.Find(mesh => mesh.meshName.Equals(name));
-			(bones[i] as MeshReplacer)?.Init(mesh);
+			bone.Init(mesh, gravity, springConst);
+			bones.Add(bone);
 		}
 	}
 
 	public override void _Process(double delta)
 	{
-		//Code foreach (var obj in objects)
-		// {
-		// 	obj.draw = draw;
-		// }
+		foreach (var bone in bones)	
+		{ 
+			bone.draw = draw;
+		}
 	}
 
 	private void ReadInMesh(FileAccess file)

@@ -51,34 +51,81 @@ public partial class MeshVisualizer : MeshInstance3D
 		mesh.SurfaceEnd();
 	}
 
-	public void drawMesh(List<int[]> faces, List<Vertex> verts, Vertex center)
+	// public void drawMesh()
+	// {
+	// 	mesh.ClearSurfaces();
+	// 	mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+	// 	foreach (int[] face in faces)
+	// 	{
+	// 		var a = verts[face[0]].position;
+	// 		var b = verts[face[1]].position;
+	// 		var c = verts[face[2]].position;
+	// 		var n = center.position-((a+b+c)/3);
+	// 		mesh.SurfaceSetNormal(n);
+	// 	        
+	// 		if (face.Length == 4)
+	// 		{
+	// 			var d = verts[face[3]].position;
+	// 			n = center.position-((a+c)/2);
+	// 			mesh.SurfaceSetNormal(n);
+	// 			mesh.SurfaceAddVertex(ToLocal(d));
+	// 			mesh.SurfaceAddVertex(ToLocal(c));
+	// 			mesh.SurfaceAddVertex(ToLocal(a));
+	// 		}
+	// 	    	
+	// 		mesh.SurfaceAddVertex(ToLocal(c));
+	// 		mesh.SurfaceAddVertex(ToLocal(b));
+	// 		mesh.SurfaceAddVertex(ToLocal(a));
+	// 	}
+	// 	
+	// 	mesh.SurfaceEnd();
+	// }
+	
+	public void drawMesh(List<int[]> faces, List<Vertex> verts)
 	{
 		mesh.ClearSurfaces();
 		mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+        
 		foreach (int[] face in faces)
 		{
 			var a = verts[face[0]].position;
 			var b = verts[face[1]].position;
 			var c = verts[face[2]].position;
-			var n = center.position-((a+b+c)/3);
+			var d = verts[face[3]].position;
+               
+                
+			var n = -(c-d).Cross(a-d);
+                
 			mesh.SurfaceSetNormal(n);
 		        
-			if (face.Length == 4)
-			{
-				var d = verts[face[3]].position;
-				n = center.position-((a+c)/2);
-				mesh.SurfaceSetNormal(n);
-				mesh.SurfaceAddVertex(ToLocal(d));
-				mesh.SurfaceAddVertex(ToLocal(c));
-				mesh.SurfaceAddVertex(ToLocal(a));
-			}
+			// if (face.Length == 4)
+			// {
+			//     mesh.SurfaceSetNormal(n);
+			// }
+
+            
+			a = convertCoord(a);
+			b = convertCoord(b);
+			c = convertCoord(c);
+			d = convertCoord(d);
+            
 		    	
-			mesh.SurfaceAddVertex(ToLocal(c));
-			mesh.SurfaceAddVertex(ToLocal(b));
-			mesh.SurfaceAddVertex(ToLocal(a));
+			mesh.SurfaceAddVertex(d);
+			mesh.SurfaceAddVertex(c);
+			mesh.SurfaceAddVertex(a);
+			mesh.SurfaceAddVertex(c);
+			mesh.SurfaceAddVertex(b);
+			mesh.SurfaceAddVertex(a);
 		}
 		
 		mesh.SurfaceEnd();
+	}
+	
+	private Vector3 convertCoord(Vector3 coord)
+	{
+		// var p = GetParent() as Node3D;
+                             		// coord /= p.Scale; 
+		return coord;
 	}
 	
 	public void clear()
