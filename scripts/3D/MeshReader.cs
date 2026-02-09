@@ -19,7 +19,6 @@ public partial class MeshReader : Node3D
 {
 	[Export] private Script addedScript;
 	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
-	[Export] private bool pinCenter;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;
 	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet, Test")] public int meshType { get; set; }
@@ -41,11 +40,12 @@ public partial class MeshReader : Node3D
 		{
 			boneAtts[i].SetScript(addedScript);
 			boneAtts[i].SetProcess(true);
-
+			boneAtts[i].SetPhysicsProcess(true);
+			
 			var bone = boneAtts[i] as MeshReplacer;
 			var name = bone.GetName();
 			var mesh = objects.Find(mesh => mesh.meshName.Equals(name));
-			bone.Init(mesh, gravity, springConst);
+			bone.Init(mesh, gravity, springConst, draw);
 			bones.Add(bone);
 		}
 	}
@@ -110,12 +110,12 @@ public partial class MeshReader : Node3D
 					AddFace(verts[a], verts[b], verts[c], verts[d]);
 					faces.Add([a, b, c, d]);
 				}
-			//CODE 	else // triangle
-			// 	{
-			// 		if (split.Length > 5) GD.PushWarning($"Mesh {meshName} contains Triangles");
-			// 		AddFace(verts[a], verts[b], verts[c], null);
-			// 		faces.Add([a, b, c]);
-			// 	}
+				else // triangle
+				{
+					if (split.Length > 5) GD.PushWarning($"Mesh {meshName} contains Triangles");
+					AddFace(verts[a], verts[b], verts[c], null);
+					faces.Add([a, b, c]);
+				}
 			}
 		}
 		ReadInObject(meshName, verts, faces);
@@ -153,7 +153,7 @@ public partial class MeshReader : Node3D
 	{
 		// get center point
 		var center = new Vertex(section);
-		center.pin = pinCenter;
+		center.pin = true;
 
 		// connect to all verts
 		foreach (var vertex in section)

@@ -15,28 +15,34 @@ public partial class MeshReplacer : Node3D
     private MeshVisualizer shearMV;
     private MeshVisualizer structureMV;
     
-    public void Init(SoftMesh softMesh, float gravity, float springConst)
+    public void Init(SoftMesh softMesh, float gravity, float springConst, int draw)
     {
-        this.softMesh = softMesh;
+	    this.softMesh = softMesh;
         G = new Vector3(0, -gravity, 0);
         this.springConst = springConst;
-        
-        GetChild(0).QueueFree();
+        this.draw = draw;
+
+        var attach = GetChild<MeshInstance3D>(0);
+        attach.Mesh = null;
        
         lastPos = GlobalPosition;
-        meshVisualizer = new MeshVisualizer();
-        AddChild(meshVisualizer);
-        wireVisualizer = new MeshVisualizer();
-        AddChild(wireVisualizer);
-        shearMV = new MeshVisualizer();
-        AddChild(shearMV);
-        structureMV = new MeshVisualizer();
-        AddChild(structureMV);
-        DrawMesh();
+        meshVisualizer = initMeshVisualizer(attach);
+        wireVisualizer = initMeshVisualizer(attach);
+        shearMV = initMeshVisualizer(attach);
+        structureMV = initMeshVisualizer(attach);
         
         DrawMesh();
     }
-    
+
+    private MeshVisualizer initMeshVisualizer(MeshInstance3D attach)
+    {
+	    var MV = new MeshVisualizer();
+	    attach.AddChild(MV);
+	    MV.GlobalPosition = Vector3.Zero;
+	    MV.GlobalRotation = Vector3.Zero;
+	    return MV;
+    }
+
     private void DrawMesh()
 	{
 		if ((draw&(1<<2)) != 0) shearMV.drawWires(softMesh.externalVerts, Springs.shear, Colors.Turquoise);
@@ -46,10 +52,13 @@ public partial class MeshReplacer : Node3D
 		else structureMV.clear();
 		
 		if ((draw&(1<<1)) != 0) wireVisualizer.drawWires(softMesh.externalVerts, Springs.neighbour, Colors.White);
+		else wireVisualizer.clear();
+		
 		if ((draw&(1<<0)) != 0) meshVisualizer.drawMesh(softMesh.faces, softMesh.externalVerts);
+		else meshVisualizer.clear();
 	}
 	
-	public override void _PhysicsProcess(double delta) 
+	public override void _PhysicsProcess(double delta)
 	{
 		foreach (var vert in softMesh.verts)
 		{
