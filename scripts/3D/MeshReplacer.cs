@@ -13,13 +13,12 @@ public partial class MeshReplacer : Node3D
     private Vector3 lastRot;
     private ImmediateMesh mesh;
     private SoftMesh softMesh;
-	
-    private MeshVisualizer meshVisualizer;
+    
     private MeshVisualizer wireVisualizer;
     private MeshVisualizer shearMV;
     private MeshVisualizer structureMV;
     
-    public void Init(SoftMesh softMesh, float gravity, float springConst, int draw, bool groundCollision)
+    public void Init(SoftMesh softMesh, Material material, float gravity, float springConst, int draw, bool groundCollision)
     {
 	    this.softMesh = softMesh;
         G = new Vector3(0, -gravity, 0);
@@ -27,87 +26,91 @@ public partial class MeshReplacer : Node3D
         this.draw = draw;
         this.groundCollision = groundCollision;
 
-        var attach = GetChild<MeshInstance3D>(0);
-        attach.Mesh = null;
-        // DEBUG 
-	        var cylinder = new CylinderMesh();
-	        attach.Mesh = cylinder;
-	        cylinder.Height = 0.005f;
-	        cylinder.BottomRadius = 0.0005f;
-	        cylinder.TopRadius = 0.0005f;
-	        attach.Position = new Vector3(0, 0.0025f, 0);
-	        attach.Rotation = Vector3.Zero;
+        // replace previous ArrayMesh with ImmediateMesh
+        Node3D meshNode = GetChild(0) as Node3D;
+        meshNode.Position = Vector3.Zero;
+        meshNode.Rotation = Vector3.Zero;
+        meshNode.Scale = Vector3.One;
+        mesh = new ImmediateMesh();
+        (meshNode as MeshInstance3D).Mesh = mesh;
+        (meshNode as MeshInstance3D).MaterialOverride = material;
+        
        
         lastPos = GlobalPosition;
         lastRot = GlobalRotation;
-        meshVisualizer = initMeshVisualizer(attach);
-        wireVisualizer = initMeshVisualizer(attach);
-        shearMV = initMeshVisualizer(attach);
-        structureMV = initMeshVisualizer(attach);
+      
+        wireVisualizer = initMeshVisualizer(meshNode);
+        shearMV = initMeshVisualizer(meshNode);
+        structureMV = initMeshVisualizer(meshNode);
 
-        // convert internal points to local
-        foreach (var  vert in softMesh.internalVerts)
+        // convert internal points to local space, to have them move along with the bones
+        foreach (var  vert in softMesh.InternalVerts)
         {
-	        vert.position /= Scale;
+	        vert.position = ToLocal(vert.position);
         }
 
-        foreach (var vert in softMesh.externalVerts)
-        {
-	        if (vert.neighbors.Count == 0)
-	        {
-		        GD.Print(softMesh.meshName);
-	        }
-        }
-        
-        DrawMesh();
+        DrawObjects();
     }
 
-    private MeshVisualizer initMeshVisualizer(MeshInstance3D attach)
+    private MeshVisualizer initMeshVisualizer(Node3D meshNode)
     {
 	    var MV = new MeshVisualizer();
-	    attach.AddChild(MV);
-	    MV.GlobalPosition = Vector3.Zero;
-	    MV.GlobalRotation = Vector3.Zero;
+	    meshNode.AddChild(MV);
+	    MV.Position = Vector3.Zero;
+	    MV.Rotation = Vector3.Zero;
+	    MV.Scale = Vector3.One;
 	    return MV;
     }
 
-    private void DrawMesh()
+    private void DrawObjects()
 	{
-		if ((draw&(1<<2)) != 0) shearMV.drawWires(softMesh.externalVerts, Springs.shear, Colors.Turquoise);
+		if ((draw&(1<<2)) != 0) shearMV.drawWires(softMesh.ExternalVerts, Springs.shear, Colors.Turquoise);
 		else shearMV.clear();
 		
-		if ((draw&(1<<3)) != 0) structureMV.drawWires(softMesh.internalVerts, Springs.structure, Colors.Magenta);
+		if ((draw&(1<<3)) != 0) structureMV.drawWires(softMesh.InternalVerts, Springs.structure, Colors.Magenta);
 		else structureMV.clear();
 		
-		if ((draw&(1<<1)) != 0) wireVisualizer.drawWires(softMesh.externalVerts, Springs.neighbour, Colors.White);
+		if ((draw&(1<<1)) != 0) wireVisualizer.drawWires(softMesh.ExternalVerts, Springs.neighbour, Colors.White);
 		else wireVisualizer.clear();
 		
-		if ((draw&(1<<0)) != 0) meshVisualizer.drawMesh(softMesh.faces, softMesh.externalVerts);
-		else meshVisualizer.clear();
+		if ((draw&(1<<0)) != 0) constructMesh();
+		else mesh.ClearSurfaces();
 	}
+    
+	public void constructMesh()
+	{
+		mesh.ClearSurfaces();
+		mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
 
-	// public override void _Process(double delta)
-	// {
-	// 	if (Input.IsKeyPressed(Key.M))
-	// 	{
-	// 		for (int i = 0; i < softMesh.internalVerts.Count; i++)
-	// 		{
-	// 			var a = softMesh.internalVerts[i].position;
-	// 			var b = a.Rotated(Vector3.Up, (float)delta);
-	// 			softMesh.internalVerts[i].position = b;
-	// 		}
-	// 	}
-	// }
+		foreach (int[] face in softMesh.Faces)
+		{
+			var a = ToLocal(softMesh.ExternalVerts[face[0]].position);
+			var b = ToLocal(softMesh.ExternalVerts[face[1]].position);
+			var c = ToLocal(softMesh.ExternalVerts[face[2]].position);
+			
+			var n = (c-b).Cross(a-b);
+			mesh.SurfaceSetNormal(n);
+		        
+			if (face.Length == 4)
+			{
+				var d = ToLocal(softMesh.ExternalVerts[face[3]].position);
+				mesh.SurfaceAddVertex(d);
+				mesh.SurfaceAddVertex(c);
+				mesh.SurfaceAddVertex(a);
+			}
+			
+			mesh.SurfaceAddVertex(c);
+			mesh.SurfaceAddVertex(b);
+			mesh.SurfaceAddVertex(a);
+		}
+		
+		mesh.SurfaceEnd();
+	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		//TODO 
-		// 1 update all internal verts to adjust for movement + rotation
-		// 2 physics shit all outer verts
-		// 3 spring constraints, damping, collision
-		// 4 profit 
 		
-		foreach (var vert in softMesh.externalVerts)
+		foreach (var vert in softMesh.ExternalVerts)
 		{
 			if (groundCollision && vert.position.Y == 0) continue;
 			
@@ -126,15 +129,12 @@ public partial class MeshReplacer : Node3D
 			
 		}	
 		
-		
 		// SPRINGS
-		ConstrainSprings(softMesh.internalVerts, Springs.structure);
-		DrawMesh();
-		return;
-		ConstrainSprings(softMesh.externalVerts, Springs.neighbour);
-		ConstrainSprings(softMesh.externalVerts, Springs.shear);
+		ConstrainSprings(softMesh.InternalVerts, Springs.structure);
+		ConstrainSprings(softMesh.ExternalVerts, Springs.neighbour);
+		ConstrainSprings(softMesh.ExternalVerts, Springs.shear);
 		
-		foreach (var vert in softMesh.externalVerts)
+		foreach (var vert in softMesh.ExternalVerts)
 		{
 			if (groundCollision && vert.position.Y == 0) continue;
 			
@@ -149,7 +149,7 @@ public partial class MeshReplacer : Node3D
 			vert.position = newPos;
 		}
 		
-		DrawMesh();
+		DrawObjects();
 		lastPos = GlobalPosition;
 		lastRot = GlobalRotation;
 	}
@@ -166,8 +166,8 @@ public partial class MeshReplacer : Node3D
 			};
 			foreach (KeyValuePair<Vertex, float> neighbor in list)
 			{
-				var v = vert.pin? vert.position*Scale : vert.position;
-				var w = neighbor.Key.pin? neighbor.Key.position*Scale : neighbor.Key.position;
+				var v = vert.pin? ToGlobal(vert.position) : vert.position;
+				var w = neighbor.Key.pin? ToGlobal(neighbor.Key.position) : neighbor.Key.position;
 			
 				// TODO move halfValue form midpoint instead of dif from Pos 
 				

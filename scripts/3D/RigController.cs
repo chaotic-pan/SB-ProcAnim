@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class LizartRig : Node3D
+public partial class RigController : Node3D
 {
 	[Export] private float turnSpeed= 1f;
 	[Export] private float moveSpeed= 1f;

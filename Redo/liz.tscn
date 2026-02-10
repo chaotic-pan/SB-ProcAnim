@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://uxai1ahmavpl"]
+
+[ext_resource type="PackedScene" uid="uid://dangs2ok077h6" path="res://Redo/liz.fbx" id="1_5h84x"]
+
+[node name="liz" unique_id=95155793 instance=ExtResource("1_5h84x")]
+
+[node name="Body_002" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="0" unique_id=583500050]
+transform = Transform3D(1, 1.7483899e-07, -1.1034173e-06, 1.667396e-07, -0.99997324, -0.007335992, -1.1046703e-06, 0.0073359935, -0.999973, -2.8360253e-10, 0.0075144097, 0.007830173)
+bone_idx = 1
+
+[node name="Body_001" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="1" unique_id=1269471687]
+transform = Transform3D(1, 1.7477379e-07, -1.6003406e-06, 1.3117415e-07, -0.99963, -0.027203545, -1.6045028e-06, 0.027203545, -0.99962974, 2.2936604e-09, -0.007227547, 0.008975415)
+bone_idx = 3
+
+[node name="Head2" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="2" unique_id=494893819]
+transform = Transform3D(1, 1.7057695e-07, -8.172249e-07, 3.4702822e-07, -0.9752557, 0.22108003, -7.5929216e-07, -0.22107998, -0.9752555, 3.461567e-09, -0.013907454, 0.009157199)
+bone_idx = 4
+
+[node name="Arm1_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="3" unique_id=745822070]
+transform = Transform3D(-0.26794448, 0.85158384, -0.450567, 0.96343434, 0.23683713, -0.1253093, -3.9301813e-07, -0.4676676, -0.88390416, 0.0037694818, -0.011216912, 0.007830174)
+bone_idx = 6
+
+[node name="Arm2_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="4" unique_id=1480782331]
+transform = Transform3D(0.8048746, -0.33083272, 0.49267256, -0.5776485, -0.24648729, 0.77818125, -0.13601036, -0.9109296, -0.38949648, 0.008965079, -0.009771947, 0.004976889)
+bone_idx = 7
+
+[node name="Hand_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="5" unique_id=2016479184]
+transform = Transform3D(0.9999818, -0.005898714, 0.0010711849, -0.005995095, -0.98285496, 0.18428205, -3.4421682e-05, -0.18428496, -0.9828723, 0.007348894, -0.010976085, 0.0005268152)
+bone_idx = 8
+
+[node name="Arm1_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="6" unique_id=1892893385]
+transform = Transform3D(-0.2679447, -0.8515838, 0.45056707, -0.96343446, 0.23683721, -0.1253096, 5.9232116e-07, -0.4676677, -0.88390416, -0.0037694764, -0.011216914, 0.007830174)
+bone_idx = 10
+
+[node name="Arm2_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="7" unique_id=11197386]
+transform = Transform3D(0.80487514, 0.33083275, -0.49267238, 0.57764846, -0.2464869, 0.7781819, 0.1360107, -0.91093016, -0.38949597, -0.008965071, -0.009771948, 0.004976889)
+bone_idx = 11
+
+[node name="Hand_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="8" unique_id=906718881]
+transform = Transform3D(0.9999821, 0.0058983862, -0.0010712743, 0.0059950054, -0.9828552, 0.18428257, 3.4108758e-05, -0.18428558, -0.9828726, -0.007348887, -0.010976087, 0.00052681006)
+bone_idx = 12
+
+[node name="Leg1_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="9" unique_id=456292405]
+transform = Transform3D(0.14388579, 0.8087435, -0.57029, 0.9895733, -0.11382717, 0.0882508, 0.006457715, -0.57704175, -0.81668895, 0.0031726458, 0.0038186742, 0.008772543)
+bone_idx = 14
+
+[node name="Leg2_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="10" unique_id=356106877]
+transform = Transform3D(-0.97340333, -0.14385232, 0.17830342, -0.22905976, 0.62522143, -0.74607635, -0.0041543245, -0.7670754, -0.64154327, 0.008529071, 0.0030647805, 0.004950713)
+bone_idx = 15
+
+[node name="Foot_L" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="11" unique_id=1107068832]
+transform = Transform3D(0.9998995, 0.014005423, -0.0021426305, 0.01416482, -0.9847789, 0.17323574, 0.0003162995, -0.17324841, -0.98487794, 0.0077195996, 0.0065829623, 0.00063430564)
+bone_idx = 16
+
+[node name="Leg1_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="12" unique_id=1466846630]
+transform = Transform3D(0.14388631, -0.8087435, 0.57029, -0.98957336, -0.11382757, 0.08825109, -0.0064577647, -0.5770417, -0.81668895, -0.0031726442, 0.0038186724, 0.008772543)
+bone_idx = 18
+
+[node name="Leg2_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="13" unique_id=1389187195]
+transform = Transform3D(-0.9734038, 0.14385179, -0.17830315, 0.22905922, 0.62522167, -0.7460767, 0.004154533, -0.76707566, -0.64154327, -0.008529071, 0.003064775, 0.0049507115)
+bone_idx = 19
+
+[node name="Foot_R" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="14" unique_id=1335990628]
+transform = Transform3D(0.99990004, -0.014004588, 0.0021400005, -0.014163591, -0.9847794, 0.17323536, -0.0003187284, -0.17324787, -0.98487836, -0.007719604, 0.0065829577, 0.00063430425)
+bone_idx = 20
+
+[node name="Tail1" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="15" unique_id=1542011241]
+transform = Transform3D(1, -1.7484555e-07, 2.3140613e-30, 1.7484555e-07, 1, 8.092067e-37, -2.3140613e-30, -4.046034e-37, 1, -2.8360253e-10, 0.0075144097, 0.007830173)
+bone_idx = 22
+
+[node name="Tail2" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="16" unique_id=1970560508]
+transform = Transform3D(1, -3.496911e-07, 2.3140616e-30, 3.496911e-07, 1, 8.092068e-37, -2.3140616e-30, 2.1e-44, 1, -1.7273045e-09, 0.015771423, 0.007830173)
+bone_idx = 23
+
+[node name="Tail3" parent="A_Lizart/Skeleton3D" parent_id_path=PackedInt32Array(1671660950) index="17" unique_id=2100033235]
+transform = Transform3D(1, -3.496911e-07, 2.3140616e-30, 3.496911e-07, 1, 8.092068e-37, -2.3140616e-30, 1.4e-44, 1, -3.9885846e-09, 0.02223793, 0.007830173)
+bone_idx = 24

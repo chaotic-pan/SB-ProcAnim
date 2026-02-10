@@ -6,22 +6,14 @@ using Godot;
 using Godot.Collections;
 using FileAccess = Godot.FileAccess;
 
-public class SoftMesh(string meshName, List<Vertex> externalVerts, List<Vertex> internalVerts, List<int[]> faces)
-{
-	public string meshName = meshName; 
-	public List<Vertex> externalVerts = externalVerts; 
-	public List<Vertex> internalVerts = internalVerts; 
-	public List<int[]> faces = faces;
-}
-
 public partial class MeshReader : Node3D
 {
 	[Export] private Script addedScript;
+	[Export] private Material MeshMaterial;
 	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
 	[Export] private bool groundCollision;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;
-	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet, Test")] public int meshType { get; set; }
 	private static readonly NumberFormatInfo Ci = CultureInfo.InvariantCulture.NumberFormat;
 
 	private Array<MeshReplacer> bones = [];
@@ -30,9 +22,7 @@ public partial class MeshReader : Node3D
 	
 	public override void _Ready()
 	{
-		var obj = meshType==0? "lizartRef" : meshType==1? "subcube" : meshType==2? "box" : meshType==3? "trapezoid" 
-			: meshType==4? "sheet" : "test";
-		var path = "res://assets/" +obj+ ".obj";
+		var path = "res://assets/liz.obj";
 		ReadInMesh(FileAccess.Open(path, FileAccess.ModeFlags.Read));
 		
 		var boneAtts = FindChildren("", "BoneAttachment3D");
@@ -44,8 +34,8 @@ public partial class MeshReader : Node3D
 			
 			var bone = boneAtts[i] as MeshReplacer;
 			var name = bone.GetName();
-			var mesh = objects.Find(mesh => mesh.meshName.Equals(name));
-			bone.Init(mesh, gravity, springConst, draw, groundCollision);
+			var mesh = objects.Find(mesh => mesh.MeshName.Equals(name));
+			bone.Init(mesh, MeshMaterial, gravity, springConst, draw, groundCollision);
 			bones.Add(bone);
 		}
 	}
@@ -65,18 +55,20 @@ public partial class MeshReader : Node3D
 		var verts = new List<Vertex>();
 		var faces = new List<int[]>();
 		int reset = 1;
-		var j = 0;
+		
 		foreach (string line in content)
 		{
 			// new object start 
-			if (line.StartsWith("o "))
+			if (line.StartsWith("o ")||line.StartsWith("g "))
 			{
 				if (meshName != null)
 				{
 					ReadInObject(meshName, verts, faces);
 					reset += verts.Count;
 				}
-				meshName = line.Substring(2).Replace(".", "_");
+
+				meshName = line.Split("_")[0];
+				meshName = meshName.Substring(2).Replace(".", "_");
 				verts = [];
 				faces = [];
 			}
