@@ -22,7 +22,7 @@ camera_zoom_min = 2.0
 camera_zoom_max = 20.0
 
 [node name="floor" parent="." unique_id=879467039 instance=ExtResource("2_xvgsr")]
-transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0.057299137, -0.12905702, 0.2528091)
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0.057299137, -0.12905702, -0.028117716)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=50058955]
 transform = Transform3D(0.65482247, -0.5058964, 0.5614948, -0.14024988, 0.6486897, 0.7480185, -0.7426558, -0.5685689, 0.35382462, 4.0983114, 7.297699, 5.012764)
@@ -36,13 +36,12 @@ light_indirect_energy = 0.232
 [node name="lizart" parent="." unique_id=1323175947 instance=ExtResource("3_5t4e2")]
 script = ExtResource("4_oqwcg")
 addedScript = ExtResource("5_oqwcg")
-draw = 3
+draw = 10
 gravity = 0.001
 springConst = 0.5
 
 [node name="A_Lizart" parent="lizart" index="0" unique_id=1889487201]
 script = ExtResource("6_10v3s")
-turnSpeed = 1.0
 
 [node name="Body_003" parent="lizart/A_Lizart/Skeleton3D/Body" parent_id_path=PackedInt32Array(1323175947, 1684765920) index="0" unique_id=1511855517]
 visible = false
@@ -51,19 +50,19 @@ visible = false
 visible = true
 
 [node name="Body_002" parent="lizart/A_Lizart/Skeleton3D/Body/Body_002" parent_id_path=PackedInt32Array(1323175947, 1546260081) index="0" unique_id=1526031886]
-transform = Transform3D(0.30474448, -2.7757238e-08, -2.661824e-08, 2.661824e-08, 0.30447716, -0.012761358, 2.7757242e-08, 0.012761357, 0.30447719, -2.3254565e-11, 0.004267111, -2.105077e-05)
+transform = Transform3D(0.30474448, -2.7757244e-08, -2.661824e-08, 2.6618242e-08, 0.30447719, -0.012761358, 2.7757242e-08, 0.012761358, 0.30447719, -2.3254565e-11, 0.004267111, -2.105077e-05)
 
 [node name="Arm1_L" parent="lizart/A_Lizart/Skeleton3D/Arms/ArmL" parent_id_path=PackedInt32Array(1323175947, 1497214189) index="0" unique_id=881251899]
-transform = Transform3D(-24.42291, 82.21012, -51.429703, -1.4184073, -53.332912, -84.57884, -96.96136, -19.927137, 14.191536, 0.37694806, 0.78301746, 1.1216909)
+transform = Transform3D(-19.410177, 88.63758, -42.031185, -3.835271, -43.49896, -89.96179, -98.02312, -15.849736, 11.842719, 0.37694806, 0.78301746, 1.1216909)
 
 [node name="Arm2_L" parent="lizart/A_Lizart/Skeleton3D/Arms/ArmL" parent_id_path=PackedInt32Array(1323175947, 1497214189) index="1" unique_id=227168328]
-transform = Transform3D(78.52982, -31.024546, 53.57741, -15.653997, -93.676384, -31.29978, 59.90001, 16.19267, -78.420525, 0.87852, 0.45762825, 1.0001136)
+transform = Transform3D(75.96574, -39.051758, 52.001553, -9.47629, -85.75631, -50.55734, 64.338165, 33.478455, -68.8461, 0.91773456, 0.5176261, 1.0249902)
 
 [node name="Hand_L" parent="lizart/A_Lizart/Skeleton3D/Arms/ArmL" parent_id_path=PackedInt32Array(1323175947, 1497214189) index="2" unique_id=1993763831]
-transform = Transform3D(99.99998, -1.7881393e-05, -5.9604645e-06, 4.4703474e-06, 4.4703443e-06, -99.99995, -2.9802325e-06, 99.999954, 7.4505756e-06, 0.72695893, 1.7521896e-07, 1.0792181)
+transform = Transform3D(99.99997, 1.1920929e-05, -1.7881393e-05, -5.960466e-06, -1.4901165e-05, -99.999954, -1.4901159e-05, 99.99995, -5.960467e-06, 0.7269589, 0.098689124, 1.1885393)
 
 [node name="TailTip" parent="lizart" index="1" unique_id=63307810]
-transform = Transform3D(0.5, 0, 0, 0, -2.1855696e-08, -0.49999997, 0, 0.50000006, -2.1855692e-08, 0.7269589, 0, 1.0792178)
+transform = Transform3D(0.5, 0, 0, 0, -2.1855696e-08, -0.49999997, 0, 0.50000006, -2.1855692e-08, 0.7269589, 0.09868908, 1.188539)
 
 [node name="TailTip2" parent="lizart" index="2" unique_id=1554581662]
 transform = Transform3D(0.5, 0, 0, 0, 0.50000006, 0, 0, 0, 0.49999997, 2.0660877, 0.67847943, 0.63671434)

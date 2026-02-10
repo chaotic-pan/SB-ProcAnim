@@ -35,14 +35,17 @@ public partial class MeshVisualizer : MeshInstance3D
 			{
 				Vertex[] edge = [vertA, vertB.Key];
 				if (!drawn.Add(edge)) continue;
-					
-				var a = ToLocal(vertA.position);
-				var b = ToLocal(vertB.Key.position);
+
+				var scale = GetParent<Node3D>().Scale;
+				var a = vertA.pin? vertA.position/scale : ToLocal(vertA.position);
+				var b = vertB.Key.pin? vertB.Key.position/scale : ToLocal(vertB.Key.position);
+				b /= Scale;
+				//CODE var a = ToLocal(vertA.position);
+				// var b = ToLocal(vertB.Key.position);
+			
 				var dif = (a-b).Length() - vertB.Value;
 				
-				if (dif > vertB.Value*0.1) mesh.SurfaceSetColor(color.Darkened(0.3f));
-				else if (dif < vertB.Value*-0.1) mesh.SurfaceSetColor(color.Lightened(0.3f));
-				else mesh.SurfaceSetColor(color);
+				mesh.SurfaceSetColor(color);
 					
 				mesh.SurfaceAddVertex(a);
 				mesh.SurfaceAddVertex(b);

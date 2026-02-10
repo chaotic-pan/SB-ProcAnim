@@ -6,10 +6,9 @@ using Godot;
 using Godot.Collections;
 using FileAccess = Godot.FileAccess;
 
-public class SoftMesh(string meshName, List<Vertex> verts, List<Vertex> externalVerts, List<Vertex> internalVerts, List<int[]> faces)
+public class SoftMesh(string meshName, List<Vertex> externalVerts, List<Vertex> internalVerts, List<int[]> faces)
 {
 	public string meshName = meshName; 
-	public List<Vertex> verts = verts; 
 	public List<Vertex> externalVerts = externalVerts; 
 	public List<Vertex> internalVerts = internalVerts; 
 	public List<int[]> faces = faces;
@@ -19,6 +18,7 @@ public partial class MeshReader : Node3D
 {
 	[Export] private Script addedScript;
 	[Export(PropertyHint.Flags, "Mesh:1,Wires:2,Shear:4,Structure:8")] public int draw { get; set; }
+	[Export] private bool groundCollision;
 	[Export] private float gravity = 0.1f;
 	[Export] private float springConst = 0.2f;
 	[Export(PropertyHint.Enum, "Lizard, QuadBall, Box, Trapezoid, Sheet, Test")] public int meshType { get; set; }
@@ -45,7 +45,7 @@ public partial class MeshReader : Node3D
 			var bone = boneAtts[i] as MeshReplacer;
 			var name = bone.GetName();
 			var mesh = objects.Find(mesh => mesh.meshName.Equals(name));
-			bone.Init(mesh, gravity, springConst, draw);
+			bone.Init(mesh, gravity, springConst, draw, groundCollision);
 			bones.Add(bone);
 		}
 	}
@@ -123,30 +123,27 @@ public partial class MeshReader : Node3D
 
 	private void ReadInObject(string meshName, List<Vertex> vertices, List<int[]> faces)
 	{
-		var verts = new List<Vertex>(vertices);
 		var externalVerts = new List<Vertex>(vertices);
 		var internalVerts = new List<Vertex>();
 		
 		var center = Subdiv(externalVerts);
-		verts.Add(center);
 		internalVerts.Add(center);
 		
 		foreach (var quad in faces.Where(face=> face.Length == 4))
 		{
 			// shear springs
-			var a = verts[quad[0]];
-			var b = verts[quad[1]];
-			var c = verts[quad[2]];
-			var d = verts[quad[3]];
+			var a = externalVerts[quad[0]];
+			var b = externalVerts[quad[1]];
+			var c = externalVerts[quad[2]];
+			var d = externalVerts[quad[3]];
 			ConnectSpring(a, c, Springs.shear);
 			ConnectSpring(b, d, Springs.shear);
 			
 			var newVert = Subdiv([a,b,c,d, center]);
-			verts.Add(newVert);
 			internalVerts.Add(newVert);
 		}
 		
-		objects.Add(new SoftMesh(meshName, verts, externalVerts, internalVerts, faces));
+		objects.Add(new SoftMesh(meshName, externalVerts, internalVerts, faces));
 	}
 
 	private Vertex Subdiv(List<Vertex> section)
