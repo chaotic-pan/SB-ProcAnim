@@ -651,6 +651,8 @@ gravity = 0.001
 [node name="A_Lizart" type="Node3D" parent="liz" unique_id=2086008145]
 transform = Transform3D(100, 0, 0, 0, -2.3841858e-05, 99.99999, 0, -99.99999, -2.3841858e-05, 0, 0, 0)
 script = ExtResource("3_uypxw")
+turn = 0.5
+damp = 2.0
 
 [node name="Skeleton3D" type="Skeleton3D" parent="liz/A_Lizart" unique_id=1039901937]
 bones/0/name = "Bone"
@@ -812,8 +814,9 @@ bones/22/parent = 0
 bones/22/rest = Transform3D(-1, 8.742278e-08, -2.3140613e-30, -8.742278e-08, -1, -6.0690506e-37, -2.3140613e-30, -4.046034e-37, 1, 5.008997e-10, 0.00248559, 0.007830173)
 bones/22/enabled = true
 bones/22/position = Vector3(5.008997e-10, 0.00248559, 0.007830173)
-bones/22/rotation = Quaternion(-1.1570306e-30, -2.528771e-37, 1, -4.371139e-08)
+bones/22/rotation = Quaternion(0, 0.004, -1, 0)
 bones/22/scale = Vector3(1, 1, 1)
+bones/22/bone_meta/lagging = true
 bones/23/name = "Tail.002"
 bones/23/parent = 22
 bones/23/rest = Transform3D(1, -1.7484557e-07, 3.7615815e-37, 1.7484557e-07, 1, -1e-45, -3.7615815e-37, 6.6e-44, 1, 0, 0.008257013, 0)
@@ -986,7 +989,7 @@ mesh = SubResource("ArrayMesh_wkwyu")
 skeleton = NodePath("")
 
 [node name="Tail1" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=463675687]
-transform = Transform3D(1, -1.7484555e-07, 2.3140613e-30, 1.7484555e-07, 1, 8.092067e-37, -2.3140613e-30, -4.046034e-37, 1, -2.8360253e-10, 0.0075144097, 0.007830173)
+transform = Transform3D(1, -8.7419984e-08, -6.993711e-10, 8.742278e-08, 0.99996805, 0.007999873, 0, -0.007999873, 0.999968, -2.8360253e-10, 0.0075144097, 0.007830173)
 bone_name = "Tail.001"
 bone_idx = 22
 
@@ -996,7 +999,7 @@ mesh = SubResource("ArrayMesh_tvixq")
 skeleton = NodePath("")
 
 [node name="Tail2" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=11563019]
-transform = Transform3D(1, -3.496911e-07, 2.3140616e-30, 3.496911e-07, 1, 8.092068e-37, -2.3140616e-30, 2.1e-44, 1, -1.7273045e-09, 0.015771423, 0.007830173)
+transform = Transform3D(1, -2.6226556e-07, -6.993711e-10, 2.6226274e-07, 0.99996805, 0.007999873, -1.3987423e-09, -0.007999873, 0.999968, -1.0054304e-09, 0.015771158, 0.007764118)
 bone_name = "Tail.002"
 bone_idx = 23
 
@@ -1006,7 +1009,7 @@ mesh = SubResource("ArrayMesh_qwo51")
 skeleton = NodePath("")
 
 [node name="Tail3" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1635171724]
-transform = Transform3D(1, -3.496911e-07, 2.3140616e-30, 3.496911e-07, 1, 8.092068e-37, -2.3140616e-30, 1.4e-44, 1, -3.9885846e-09, 0.02223793, 0.007830173)
+transform = Transform3D(1, -2.622656e-07, -6.993711e-10, 2.6226274e-07, 0.99996805, 0.007999873, -1.3987425e-09, -0.007999873, 0.999968, -2.7013727e-09, 0.02223746, 0.0077123865)
 bone_name = "Tail.003"
 bone_idx = 24
 

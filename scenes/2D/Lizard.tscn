@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://bgiqlv2kr3ftq"]
+[gd_scene format=3 uid="uid://bgiqlv2kr3ftq"]
 
 [ext_resource type="Script" uid="uid://cjlqcfyf6df6f" path="res://scripts/2D/Lizard.cs" id="1_wtcfe"]
 
@@ -13,7 +13,7 @@ colors = PackedColorArray(1, 0, 0, 1, 1, 0.5, 0, 1, 1, 1, 0, 1, 0.5, 1, 0, 1, 0,
 metadata/_snap_enabled = true
 metadata/_snap_count = 12
 
-[node name="Lizard" type="Node2D"]
+[node name="Lizard" type="Node2D" unique_id=1123511090]
 script = ExtResource("1_wtcfe")
 count = 15
 distance = 30.0
