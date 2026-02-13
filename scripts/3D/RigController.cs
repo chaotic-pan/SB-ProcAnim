@@ -11,8 +11,9 @@ public partial class RigController : Node3D
 	[Export] private float turn;
 	[Export] private float damp;
 
-	private Dictionary<int, Vector3[]> laggingBones = [];
-	// Called when the node enters the scene tree for the first time.
+	private Dictionary<int, Vector3[]> laggingBones = []; //boneIdx - pos, prevPos
+	private Bug3D[] bugs = new Bug3D[2];
+	
 	public override void _Ready()
 	{
 		skelli = GetChild<Skeleton3D>(0);
@@ -21,32 +22,40 @@ public partial class RigController : Node3D
 			var rot = skelli.GetBoneGlobalPose(i).Basis.GetRotationQuaternion().GetEuler();
 			if (skelli.GetBoneName(i).Contains("Tail") && !skelli.GetBoneName(i).Contains("_end")) 
 				laggingBones.Add(i, [rot, rot]);
+			
+		}
+		
+		var iks = FindChildren("", "TwoBoneIK3D");
+		for (int i = 0; i < iks.Count; i++)
+		{
+			bugs[i] = new Bug3D();
+			bugs[i].Init(skelli, (TwoBoneIK3D)iks[i]);
 		}
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		// player input controlls
-		var pos = skelli.GetBonePosePosition(0);
-		var rot = skelli.GetBonePoseRotation(0).Normalized();
-		var eul = rot.GetEuler();
+		#region Player Input Controls 
+			var pos = skelli.GetBonePosePosition(0);
+			var rot = skelli.GetBonePoseRotation(0).Normalized();
+			var eul = rot.GetEuler();
 
-		if (Input.IsKeyPressed(Key.Left))
-			eul.Z += turnSpeed / 200;
-		else if (Input.IsKeyPressed(Key.Right))
-			eul.Z -= turnSpeed / 200;
+			if (Input.IsKeyPressed(Key.Left))
+				eul.Z += turnSpeed / 200;
+			else if (Input.IsKeyPressed(Key.Right))
+				eul.Z -= turnSpeed / 200;
 
-		var move = new Vector3(0, moveSpeed / 10000, 0).Rotated(eul.Normalized(), eul.Length());
-		if (Input.IsKeyPressed(Key.Up))
-			pos += move;
-		else if (Input.IsKeyPressed(Key.Down))
-			pos -= move;
+			var move = new Vector3(0, moveSpeed / 10000, 0).Rotated(eul.Normalized(), eul.Length());
+			if (Input.IsKeyPressed(Key.Up))
+				pos += move;
+			else if (Input.IsKeyPressed(Key.Down))
+				pos -= move;
 
-		skelli.SetBonePosePosition(0, pos);
-		skelli.SetBonePoseRotation(0, Quaternion.FromEuler(eul));
+			skelli.SetBonePosePosition(0, pos);
+			skelli.SetBonePoseRotation(0, Quaternion.FromEuler(eul));
+		#endregion
 
-		// tail lags
+		#region tail lags
 		foreach (int boneIdx in laggingBones.Keys)
 		{
 			Transform3D transform = skelli.GetBoneGlobalPose(boneIdx);
@@ -63,16 +72,14 @@ public partial class RigController : Node3D
 
 			// DAMP
 			newRot = (curRot + (newRot - curRot)*(1-(damp/100f)));
-
-			//
-			// var m = (newRot - curRot).Length();		
-			// if (m > 1)
-			// {
-			// 	GD.Print($"{newRot} // {curRot}");
-			// }
+			
 			transform.Basis = new Basis(Quaternion.FromEuler(newRot));
 			skelli.SetBoneGlobalPose(boneIdx, transform);
 			laggingBones[boneIdx] = [newRot, curRot];
 		}
+		#endregion 
+		
+		bugs[0].Update(delta);
+		
 	}
 }

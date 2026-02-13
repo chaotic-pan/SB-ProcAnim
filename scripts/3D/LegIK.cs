@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections;
 
-public partial class Leg3D : Node3D
+public partial class LegIK : Node3D
 {
 	[Export] private bool drawDebugs;
 	[Export] private Material yellow;
