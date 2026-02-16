@@ -12,6 +12,7 @@ public partial class RigController : Node3D
 	[Export] private float damp;
 
 	private Dictionary<int, Vector3[]> laggingBones = []; //boneIdx - pos, prevPos
+	private Dictionary<int, Vector3[]> predictiveBones = []; //boneIdx - pos, prevPos
 	private Bug3D[] bugs = new Bug3D[2];
 	
 	public override void _Ready()
@@ -22,6 +23,8 @@ public partial class RigController : Node3D
 			var rot = skelli.GetBoneGlobalPose(i).Basis.GetRotationQuaternion().GetEuler();
 			if (skelli.GetBoneName(i).Contains("Tail") && !skelli.GetBoneName(i).Contains("_end")) 
 				laggingBones.Add(i, [rot, rot]);
+			if (skelli.GetBoneName(i).Contains("Head") && !skelli.GetBoneName(i).Contains("_end")) 
+				predictiveBones.Add(i, [rot, rot]);
 			
 		}
 		
@@ -29,7 +32,7 @@ public partial class RigController : Node3D
 		for (int i = 0; i < iks.Count; i++)
 		{
 			bugs[i] = new Bug3D();
-			bugs[i].Init(skelli, (TwoBoneIK3D)iks[i]);
+			bugs[i].Init(skelli, (TwoBoneIK3D)iks[i],this);
 		}
 	}
 
@@ -66,16 +69,58 @@ public partial class RigController : Node3D
 			var goalTrans = skelli.GetBoneGlobalPose(parentIdx);
 			if(boneIdx == laggingBones.Keys.First()) goalTrans = goalTrans.RotatedLocal(Vector3.Forward, (float)Math.PI);
 			var goalRot = goalTrans.Basis.GetRotationQuaternion().GetEuler();
-			
-			// VERLET INTEGRATION	 newPos = 2*pos - prevPos + acceleration
-			var newRot = (2*curRot - oldRot + (goalRot-curRot)*(turn/1000f));
 
-			// DAMP
-			newRot = (curRot + (newRot - curRot)*(1-(damp/100f)));
+			var angle = goalRot - curRot;
+			var a = angle.X > Math.PI ? 1 : angle.X < -Math.PI ? -1 : 0;
+			var b = angle.Y > Math.PI ? 1 : angle.Y < -Math.PI ? -1 : 0;
+			var c = angle.Z > Math.PI ? 1 : angle.Z < -Math.PI ? -1 : 0;
+		
+			oldRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			curRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+
+			var newRot = (2*curRot - oldRot + (goalRot-curRot)*(turn/1000f));
+			var dif = newRot - curRot;
+		
+			dif *= 1 - (damp / 100f);
+			newRot = curRot + dif;
 			
 			transform.Basis = new Basis(Quaternion.FromEuler(newRot));
 			skelli.SetBoneGlobalPose(boneIdx, transform);
 			laggingBones[boneIdx] = [newRot, curRot];
+		}
+		#endregion 
+		
+		#region head turn
+		foreach (int boneIdx in predictiveBones.Keys)
+		{
+			Transform3D transform = skelli.GetBoneGlobalPose(boneIdx);
+			var oldRot = predictiveBones[boneIdx][1];
+			var curRot = predictiveBones[boneIdx][0];
+			
+			var parentIdx = skelli.GetBoneParent(boneIdx);
+			var goalTrans = skelli.GetBoneGlobalPose(parentIdx);
+			var goalRot = goalTrans.Basis.GetRotationQuaternion().GetEuler();
+
+			var angle = goalRot - curRot;
+			var a = angle.X > Math.PI ? 1 : angle.X < -Math.PI ? -1 : 0;
+			var b = angle.Y > Math.PI ? 1 : angle.Y < -Math.PI ? -1 : 0;
+			var c = angle.Z > Math.PI ? 1 : angle.Z < -Math.PI ? -1 : 0;
+		
+			oldRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			curRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			
+			// prev parent
+			// dif to current parent
+			// pos = current parent + dif
+			var newRot = 2*curRot - oldRot + (goalRot-curRot)*(turn/1000f);
+			var dif = newRot - curRot;
+		
+			dif *= 1 - (damp / 100f);
+			newRot = curRot - dif;
+			
+			transform.Basis = new Basis(Quaternion.FromEuler(newRot));
+			skelli.SetBoneGlobalPose(boneIdx, transform);
+			predictiveBones[boneIdx] = [newRot, curRot];
 		}
 		#endregion 
 		
