@@ -26,9 +26,9 @@ public partial class MeshVisualizer : MeshInstance3D
 		{
 			var list = springType switch
 			{
-				Springs.neighbour => vertA.neighbors,
-				Springs.shear => vertA.shear,
-				_ => vertA.structure
+				Springs.neighbour => vertA.Neighbors,
+				Springs.shear => vertA.Shear,
+				_ => vertA.Structure
 			};
 			
 			foreach (var vertB in list)
@@ -37,8 +37,8 @@ public partial class MeshVisualizer : MeshInstance3D
 				if (!drawn.Add(edge)) continue;
 
 				var scale = GetParent<Node3D>().Scale;
-				var a = vertA.pin? vertA.position : ToLocal(vertA.position);
-				var b = vertB.Key.pin? vertB.Key.position : ToLocal(vertB.Key.position);
+				var a = vertA.Pin? vertA.Position : ToLocal(vertA.Position);
+				var b = vertB.Key.Pin? vertB.Key.Position : ToLocal(vertB.Key.Position);
 				
 			
 				var dif = (a-b).Length() - vertB.Value;

@@ -11,23 +11,23 @@ public enum Springs
 
 public class Vertex
 {
-	public Vector3 position;
-	public Vector3 prevPos;
-	public readonly Dictionary<Vertex, float> neighbors = new ();
-	public readonly Dictionary<Vertex, float> shear = new();
-	public readonly Dictionary<Vertex, float> structure = new();
-	public bool pin;
+	public Vector3 Position;
+	public Vector3 PrevPos;
+	public readonly Dictionary<Vertex, float> Neighbors = new ();
+	public readonly Dictionary<Vertex, float> Shear = new();
+	public readonly Dictionary<Vertex, float> Structure = new();
+	public bool Pin;
 
 	public Vertex(Vector3 position)
 	{
-		this.position = position;
-		prevPos = position;
+		this.Position = position;
+		PrevPos = position;
 	}
 	
 	public Vertex(List<Vertex> constructed)
 	{
-		position = (constructed.Aggregate(Vector3.Zero, (current, v) => current + v.position))/constructed.Count;
-		prevPos = position;
+		Position = (constructed.Aggregate(Vector3.Zero, (current, v) => current + v.Position))/constructed.Count;
+		PrevPos = Position;
 	}
 	
 }

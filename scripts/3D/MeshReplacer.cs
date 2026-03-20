@@ -44,10 +44,10 @@ public partial class MeshReplacer : Node3D
         structureMV = initMeshVisualizer(meshNode);
 
         // convert internal points to local space, to have them move along with the bones
-        foreach (var  vert in softMesh.InternalVerts)
-        {
-	        vert.position = ToLocal(vert.position);
-        }
+         foreach (var  vert in softMesh.InternalVerts)
+         {
+	         vert.Position = ToLocal(vert.Position);
+         }
 
         DrawObjects();
     }
@@ -84,16 +84,16 @@ public partial class MeshReplacer : Node3D
 
 		foreach (int[] face in softMesh.Faces)
 		{
-			var a = ToLocal(softMesh.ExternalVerts[face[0]].position);
-			var b = ToLocal(softMesh.ExternalVerts[face[1]].position);
-			var c = ToLocal(softMesh.ExternalVerts[face[2]].position);
+			var a = ToLocal(softMesh.ExternalVerts[face[0]].Position);
+			var b = ToLocal(softMesh.ExternalVerts[face[1]].Position);
+			var c = ToLocal(softMesh.ExternalVerts[face[2]].Position);
 			
 			var n = (c-b).Cross(a-b);
 			mesh.SurfaceSetNormal(n);
 		        
 			if (face.Length == 4)
 			{
-				var d = ToLocal(softMesh.ExternalVerts[face[3]].position);
+				var d = ToLocal(softMesh.ExternalVerts[face[3]].Position);
 				mesh.SurfaceAddVertex(d);
 				mesh.SurfaceAddVertex(c);
 				mesh.SurfaceAddVertex(a);
@@ -112,20 +112,20 @@ public partial class MeshReplacer : Node3D
 		
 		foreach (var vert in softMesh.ExternalVerts)
 		{
-			if (groundCollision && vert.position.Y == 0) continue;
+			if (groundCollision && vert.Position.Y == 0) continue;
 			
 			// EULER	newPos = pos + velocity;	newVel = velocity + acceleration
 			
 			// SEMI IMPLICIT EULER	 newPos = pos + velocity + acceleration
 			
 			// VERLET INTEGRATION	 newPos = 2*pos - prevPos + acceleration
-			var newPos = 2 * vert.position - vert.prevPos + G;
+			var newPos = 2 * vert.Position - vert.PrevPos + G;
 			
 			// constraints
 			if (groundCollision && newPos.Y <= 0) newPos.Y = 0; // ground plane collision
 			
-			vert.prevPos = vert.position;
-			vert.position = newPos;
+			vert.PrevPos = vert.Position;
+			vert.Position = newPos;
 			
 		}	
 		
@@ -136,17 +136,17 @@ public partial class MeshReplacer : Node3D
 		
 		foreach (var vert in softMesh.ExternalVerts)
 		{
-			if (groundCollision && vert.position.Y == 0) continue;
+			if (groundCollision && vert.Position.Y == 0) continue;
 			
 			// DAMP
-			var move = vert.position - vert.prevPos;
+			var move = vert.Position - vert.PrevPos;
 			move *= 0.9f;
-			var newPos = vert.prevPos + move;
+			var newPos = vert.PrevPos + move;
 			
 			// constraints
 			if (groundCollision &&  newPos.Y <= 0) newPos.Y = 0; // ground plane collision
 			
-			vert.position = newPos;
+			vert.Position = newPos;
 		}
 		
 		DrawObjects();
@@ -160,14 +160,14 @@ public partial class MeshReplacer : Node3D
 		{
 			var list = springType switch
 			{
-				Springs.neighbour => vert.neighbors,
-				Springs.shear => vert.shear,
-				_ => vert.structure
+				Springs.neighbour => vert.Neighbors,
+				Springs.shear => vert.Shear,
+				_ => vert.Structure
 			};
 			foreach (KeyValuePair<Vertex, float> neighbor in list)
 			{
-				var v = vert.pin? ToGlobal(vert.position) : vert.position;
-				var w = neighbor.Key.pin? ToGlobal(neighbor.Key.position) : neighbor.Key.position;
+				var v = vert.Pin? ToGlobal(vert.Position) : vert.Position;
+				var w = neighbor.Key.Pin? ToGlobal(neighbor.Key.Position) : neighbor.Key.Position;
 			
 				// TODO move halfValue form midpoint instead of dif from Pos 
 				
@@ -176,17 +176,17 @@ public partial class MeshReplacer : Node3D
 				edge = edge.Normalized();
 				// var defRate = Math.Min(1, Math.Abs(1-(dif/neighbor.Value)));
 				
-				float sp = (vert.pin || neighbor.Key.pin)? 1 : 2;  // if one pinned, move other double
+				float sp = (vert.Pin || neighbor.Key.Pin)? 1 : 2;  // if one pinned, move other double
 				// if (springType == Springs.structure) sp *= 0.5f;
-				if (!vert.pin) v -= edge * (dif*springConst/sp);
-				if (!neighbor.Key.pin) w += edge * (dif*springConst/sp);
+				if (!vert.Pin) v -= edge * (dif*springConst/sp);
+				if (!neighbor.Key.Pin) w += edge * (dif*springConst/sp);
 				
 				// ground plane collision
 				if (groundCollision && v.Y <= 0) v.Y = 0; 
 				if (groundCollision && w.Y <= 0) w.Y = 0; 
 				
-				if (!vert.pin) vert.position = v;
-				if (!neighbor.Key.pin) neighbor.Key.position = w;
+				if (!vert.Pin) vert.Position = v;
+				if (!neighbor.Key.Pin) neighbor.Key.Position = w;
 			}
 		}
 	}

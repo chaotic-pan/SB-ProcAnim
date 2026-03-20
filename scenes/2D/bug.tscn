@@ -1,23 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://bb3r1coo4aqwh"]
+[gd_scene format=3 uid="uid://bb3r1coo4aqwh"]
 
 [ext_resource type="Script" uid="uid://bfofqsgmyx02" path="res://scripts/2D/Bug.cs" id="1_g6v7b"]
 
-[node name="Bug" type="Node2D"]
+[node name="Bug" type="Node2D" unique_id=510810087]
 script = ExtResource("1_g6v7b")
 LegCount = 2
-DistanceUp = 75.0
+DistanceUp = 50.0
 DistanceLow = 50.0
 legSpeed = 0.05
-WalkSpeed = 0.3
+WalkSpeed = 0.5
 StepInterval = 1.0
 KneeBackwards = true
+stepWidth = 10.0
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=1380665995]
 offset_right = 40.0
 offset_bottom = 23.0
 text = "0"
 
-[node name="Label2" type="Label" parent="."]
+[node name="Label2" type="Label" parent="." unique_id=1066372721]
 offset_top = 27.0
 offset_right = 40.0
 offset_bottom = 50.0

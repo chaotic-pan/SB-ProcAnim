@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://clroo7bygrcow"]
+[gd_scene format=3 uid="uid://clroo7bygrcow"]
 
 [ext_resource type="Script" uid="uid://cm2p1gluhd2va" path="res://scripts/3D/Leg3D.cs" id="1_gieqb"]
 
@@ -99,153 +99,154 @@ height = 1.0
 radial_segments = 4
 rings = 1
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1074653599]
 script = ExtResource("1_gieqb")
+useCCD = true
 yellow = SubResource("StandardMaterial3D_vrndn")
 blue = SubResource("StandardMaterial3D_utjls")
 red = SubResource("StandardMaterial3D_0dmhn")
 distanceUp = 2.0
 distanceLow = 4.0
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=937166298]
 transform = Transform3D(0.6465635, 0, -0.7628602, 0, 1, 0, 0.7628602, 0, 0.6465635, -6.5701895, 4.1210766, 5.348613)
 size = 16.46
 
-[node name="floor" type="StaticBody3D" parent="."]
+[node name="floor" type="StaticBody3D" parent="." unique_id=1902022472]
 physics_material_override = SubResource("PhysicsMaterial_gieqb")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="floor"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="floor" unique_id=1970456608]
 shape = SubResource("WorldBoundaryShape3D_m0cec")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="floor"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="floor" unique_id=1499155372]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06372702, -0.0002347827, -0.10380435)
 mesh = SubResource("PlaneMesh_p4fy2")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1048253792]
 transform = Transform3D(0.65418416, 0.62780666, -0.42178425, -0.14024992, 0.6486896, 0.7480185, 0.7432181, -0.4301866, 0.51241225, 4.0983114, 7.297699, 5.012764)
 
-[node name="Gizmo" type="Node3D" parent="."]
+[node name="Gizmo" type="Node3D" parent="." unique_id=963042761]
 unique_name_in_owner = true
 visible = false
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="Gizmo"]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Gizmo" unique_id=814329738]
 transform = Transform3D(-1, -1.509958e-07, 0, 1.509958e-07, -1, 0, 0, 0, 1, 0, 0.75, 0)
 material_override = SubResource("StandardMaterial3D_1a1eb")
 mesh = SubResource("CylinderMesh_gieqb")
 skeleton = NodePath("")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="Gizmo"]
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Gizmo" unique_id=761268672]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0.75)
 material_override = SubResource("StandardMaterial3D_m0cec")
 mesh = SubResource("CylinderMesh_gieqb")
 skeleton = NodePath("")
 
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="Gizmo"]
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Gizmo" unique_id=582629123]
 transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, -0.75, 0, 0)
 material_override = SubResource("StandardMaterial3D_p4fy2")
 mesh = SubResource("CylinderMesh_gieqb")
 skeleton = NodePath("")
 
-[node name="TargetUp" type="StaticBody3D" parent="."]
+[node name="TargetUp" type="StaticBody3D" parent="." unique_id=150068532]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8011837, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="TargetUp"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TargetUp" unique_id=113033637]
 shape = SubResource("BoxShape3D_1a1eb")
 
-[node name="head" type="MeshInstance3D" parent="TargetUp"]
+[node name="head" type="MeshInstance3D" parent="TargetUp" unique_id=647321109]
 material_override = SubResource("StandardMaterial3D_xs0fl")
 transparency = 0.9
 mesh = SubResource("BoxMesh_m0cec")
 
-[node name="head2" type="MeshInstance3D" parent="TargetUp"]
+[node name="head2" type="MeshInstance3D" parent="TargetUp" unique_id=921462070]
 material_override = SubResource("StandardMaterial3D_gieqb")
 transparency = 0.95
 mesh = SubResource("SphereMesh_gieqb")
 
-[node name="head3" type="MeshInstance3D" parent="TargetUp"]
+[node name="head3" type="MeshInstance3D" parent="TargetUp" unique_id=1810535730]
 material_override = SubResource("StandardMaterial3D_cf7l0")
 transparency = 0.9
 mesh = SubResource("SphereMesh_fu5k1")
 
-[node name="TargetLow" type="StaticBody3D" parent="."]
+[node name="TargetLow" type="StaticBody3D" parent="." unique_id=1161357223]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4834216, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="TargetLow"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TargetLow" unique_id=2094736307]
 shape = SubResource("BoxShape3D_1a1eb")
 
-[node name="head" type="MeshInstance3D" parent="TargetLow"]
+[node name="head" type="MeshInstance3D" parent="TargetLow" unique_id=1108042415]
 material_override = SubResource("StandardMaterial3D_gieqb")
 transparency = 0.9
 mesh = SubResource("BoxMesh_m0cec")
 
-[node name="head2" type="MeshInstance3D" parent="TargetLow"]
+[node name="head2" type="MeshInstance3D" parent="TargetLow" unique_id=126200392]
 material_override = SubResource("StandardMaterial3D_gieqb")
 transparency = 0.95
 mesh = SubResource("SphereMesh_m0cec")
 
-[node name="Pole" type="StaticBody3D" parent="."]
+[node name="Pole" type="StaticBody3D" parent="." unique_id=266800510]
 unique_name_in_owner = true
 transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 6.1315966, 4.743469, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Pole"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Pole" unique_id=399348868]
 transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0, 0)
 shape = SubResource("BoxShape3D_1a1eb")
 
-[node name="head" type="MeshInstance3D" parent="Pole"]
+[node name="head" type="MeshInstance3D" parent="Pole" unique_id=1330679135]
 material_override = SubResource("StandardMaterial3D_gieqb")
 transparency = 0.9
 mesh = SubResource("SphereMesh_1a1eb")
 
-[node name="Hip" type="Node3D" parent="."]
+[node name="Hip" type="Node3D" parent="." unique_id=372632298]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 0.97521496, 0.2212591, 0, -0.2212591, 0.97521496, 0, 3.7993288, 3.0003138)
 
-[node name="head" type="MeshInstance3D" parent="Hip"]
+[node name="head" type="MeshInstance3D" parent="Hip" unique_id=771085346]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("SphereMesh_vtla3")
 skeleton = NodePath("")
 
-[node name="tail" type="MeshInstance3D" parent="Hip/head"]
+[node name="tail" type="MeshInstance3D" parent="Hip/head" unique_id=458464741]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, -1.5, 0)
 mesh = SubResource("CylinderMesh_p4fy2")
 skeleton = NodePath("../Knee")
 
-[node name="Knee" type="Node3D" parent="Hip"]
+[node name="Knee" type="Node3D" parent="Hip" unique_id=297247851]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 0.10648971, 0.99431366, 0, -0.99431366, 0.10648971, 0, 0, -3.0000002)
 
-[node name="head" type="MeshInstance3D" parent="Hip/Knee"]
+[node name="head" type="MeshInstance3D" parent="Hip/Knee" unique_id=458713644]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("SphereMesh_vtla3")
 skeleton = NodePath("")
 
-[node name="tail" type="MeshInstance3D" parent="Hip/Knee/head"]
+[node name="tail" type="MeshInstance3D" parent="Hip/Knee/head" unique_id=2019817397]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, -1.5, 0)
 mesh = SubResource("CylinderMesh_o4xg2")
 skeleton = NodePath("../Knee")
 
-[node name="Foot" type="Node3D" parent="Hip/Knee"]
+[node name="Foot" type="Node3D" parent="Hip/Knee" unique_id=1107668944]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, -0.08019897, -0.9967787, 0, 0.9967787, -0.08019897, 0, -5.9604645e-08, -3.0000005)
 
-[node name="head" type="MeshInstance3D" parent="Hip/Knee/Foot"]
+[node name="head" type="MeshInstance3D" parent="Hip/Knee/Foot" unique_id=811190773]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 mesh = SubResource("SphereMesh_vtla3")
 skeleton = NodePath("")
 
-[node name="tail" type="MeshInstance3D" parent="Hip/Knee/Foot/head"]
+[node name="tail" type="MeshInstance3D" parent="Hip/Knee/Foot/head" unique_id=1768484168]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, -0.5, 0)
 mesh = SubResource("CylinderMesh_m0cec")
 skeleton = NodePath("../Knee")
 
-[node name="tail2" type="MeshInstance3D" parent="Hip/Knee/Foot/head"]
+[node name="tail2" type="MeshInstance3D" parent="Hip/Knee/Foot/head" unique_id=567748817]
 transform = Transform3D(0.81264335, -0.58276135, 2.5473307e-08, 0.5827613, 0.8126431, 8.189623e-09, -2.5473307e-08, 8.189616e-09, 0.99999976, 0.29969496, -0.37076163, 0)
 mesh = SubResource("CylinderMesh_m0cec")
 skeleton = NodePath("../Knee")
 
-[node name="tail3" type="MeshInstance3D" parent="Hip/Knee/Foot/head"]
+[node name="tail3" type="MeshInstance3D" parent="Hip/Knee/Foot/head" unique_id=496699929]
 transform = Transform3D(0.8131007, 0.58212286, 0, -0.5821229, 0.81310064, 0, 0, 0, 0.99999976, -0.3, -0.371, 0)
 mesh = SubResource("CylinderMesh_m0cec")
 skeleton = NodePath("../Knee")

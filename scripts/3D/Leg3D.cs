@@ -4,6 +4,7 @@ using System.Collections;
 
 public partial class Leg3D : Node3D
 {
+	[Export] private bool useCCD;
 	[Export] private bool drawDebugs;
 	[Export] private Material yellow;
 	[Export] private Material blue;
@@ -23,7 +24,6 @@ public partial class Leg3D : Node3D
 	
 	private Node3D debugTorus;
 	private Node3D debugCylinderLine;
-	private Node3D debugCylinderU;
 	private Node3D debugCylinderP;
 	private Node3D debugCylinderProj;
 	public override void _Ready()
@@ -43,11 +43,10 @@ public partial class Leg3D : Node3D
 		foot.Position = new Vector3(0, 0, -distanceLow);
 		
 		pole = GetNode<Node3D>("%Pole");
-		// gizmo = GetNode<Node3D>("%Gizmo");
 		targetUp = GetNode<Node3D>("%TargetUp");
 		targetLow = GetNode<Node3D>("%TargetLow");
 
-		if (drawDebugs)
+		if (drawDebugs && !useCCD)
 		{
 			var rangeUp = (SphereMesh)targetUp.GetChild<MeshInstance3D>(2).Mesh;
 			rangeUp.Height = distanceUp*2;
@@ -93,20 +92,6 @@ public partial class Leg3D : Node3D
 			node.Rotation = new Vector3(PI / 2, 0, 0);
 			node.Position = new Vector3(0, 0, -cylinder.Height / 2);
 			debugCylinderLine = n;
-			
-			// intersection plane vector U
-			cylinder = new CylinderMesh();
-			cylinder.SurfaceSetMaterial(0, red);
-			n = new Node3D();
-			node = new MeshInstance3D();
-			node.Mesh = cylinder;
-			cylinder.BottomRadius = 0.02f;
-			cylinder.TopRadius = 0.02f;
-			AddChild(n);
-			n.AddChild(node);
-			node.Rotation = new Vector3(PI / 2, 0, 0);
-			node.Position = new Vector3(0, 0, -cylinder.Height / 2);
-			debugCylinderU = n;
 
 			// mid-pole vector P
 			cylinder = new CylinderMesh();
@@ -144,9 +129,16 @@ public partial class Leg3D : Node3D
 			targetLow.GetChild<MeshInstance3D>(2).Transparency = 1;
 		}
 
-		Recalculate();
+		if (useCCD)
+		{
+			ccd = new CCD(hip, knee, foot, pole);
+		}
+
+		if (useCCD) ccd.Recalculate(targetUp, targetLow);
+		else Recalculate();
 	}
-	
+
+	private CCD ccd;
 	public override void _Process(double delta)
 	{
 		targetUp.GetChild<MeshInstance3D>(1).MaterialOverride = blue;
@@ -176,7 +168,8 @@ public partial class Leg3D : Node3D
 			     pos.DistanceTo(targetUp.GlobalPosition) > Math.Abs(distanceUp-distanceLow)))
 			{
 				isGrabbed.GlobalPosition = pos;
-				Recalculate();
+				if (useCCD) ccd.Recalculate(targetUp, targetLow);
+				else Recalculate();
 			}
 		}
 
@@ -196,22 +189,18 @@ public partial class Leg3D : Node3D
 		
 		var R = (float)Math.Sqrt(Math.Pow(r1,2) - Math.Pow(((Math.Pow(r1,2) - Math.Pow(r2,2) +1) /2),2)) * line.Length();
 		
-		// perpendicular to line
-		Vector3 U = line.X != 0? new Vector3(-line.Y / line.X, 1, 0) :
-			line.Y != 0? new Vector3(0, -line.Z / line.Y, 1) : new Vector3(1, 0, -line.X / line.Z);
-		
 		var P = pole.GlobalPosition - M;
-		var N = (float)((P.Dot(line))/Math.Pow(line.Length(),2)) *line; // projection of K onto line
-		var proj = P - N; // projection of K onto intersection plane
+		var N = (float)((P.Dot(line))/Math.Pow(line.Length(),2)) *line; // projection of P onto line
+		var proj = P - N; // projection of P onto intersection plane
 		
 		hip.LookAt(M+proj.Normalized()*R);
 		knee.LookAt(targetLow.GlobalPosition);
 		foot.LookAt(foot.GlobalPosition + Vector3.Left);
 		
-		if (drawDebugs) DrawDebugs(line, M, R, U, P, proj);
+		if (drawDebugs) DrawDebugs(line, M, R, P, proj);
 	}
 
-	private void DrawDebugs(Vector3 line, Vector3 mid, float R, Vector3 U, Vector3 P, Vector3 proj)
+	private void DrawDebugs(Vector3 line, Vector3 mid, float R, Vector3 P, Vector3 proj)
 	{
 		var torus = new TorusMesh();
 		torus.SurfaceSetMaterial(0, red);
@@ -229,15 +218,6 @@ public partial class Leg3D : Node3D
 		debugCylinderLine.GetChild<MeshInstance3D>(0).Mesh = cylinder;
 		debugCylinderLine.GetChild<MeshInstance3D>(0).Position = new Vector3(0, 0, -line.Length()/2);
 		debugCylinderLine.LookAtFromPosition(targetLow.Position, targetUp.Position);
-		
-		cylinder = new CylinderMesh();
-		cylinder.SurfaceSetMaterial(0, red);
-		cylinder.BottomRadius = 0.02f;
-		cylinder.TopRadius = 0.02f;
-		cylinder.Height = R;
-		debugCylinderU.GetChild<MeshInstance3D>(0).Mesh = cylinder;
-		debugCylinderU.GetChild<MeshInstance3D>(0).Position = new Vector3(0, 0, -R/2);
-		debugCylinderU.LookAtFromPosition(mid, mid+U.Normalized());
 		
 		cylinder = new CylinderMesh();
 		cylinder.SurfaceSetMaterial(0, blue);
@@ -288,22 +268,4 @@ public partial class Leg3D : Node3D
 		}
 	}
 
-	IEnumerable Rotate(Node3D bone, Vector3 goal)
-	{
-		Vector3 direction = (goal - bone.Rotation).Normalized();
-		while (bone.Rotation != goal)
-		{
-			bone.Rotation += Math.Min(speed, (goal - bone.Rotation).Length()) * direction;
-			yield return null;
-		}
-	}
-	
-	public static async void StartCoroutine(IEnumerable objects)
-	{
-		var mainLoopTree = Engine.GetMainLoop();
-		foreach (var _ in objects)
-		{
-			await mainLoopTree.ToSignal(mainLoopTree, SceneTree.SignalName.ProcessFrame);
-		}
-	}
 }

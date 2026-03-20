@@ -12,13 +12,13 @@ public partial class Bug : Node2D
 	[Export] public bool DrawRanges = true;
 	[Export] public bool DrawAsMesh = true;
 	[Export] public bool KneeBackwards;
+	[Export] private float stepWidth;
 	private Vector2 lookPos;
 	private Vector2 lastPos;
 	private Vector2 pos = new(626, 324);
 	private Leg[] legs;
 	private Vector2 orientation;
 	private bool solo = true;
-	private float stepWidth;
 
 	public Bug()
 	{

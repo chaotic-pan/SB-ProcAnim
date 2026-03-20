@@ -142,7 +142,7 @@ public partial class MeshReader : Node3D
 	{
 		// get center point
 		var center = new Vertex(section);
-		center.pin = true;
+		center.Pin = true;
 
 		// connect to all verts
 		foreach (var vertex in section)
@@ -171,22 +171,22 @@ public partial class MeshReader : Node3D
 	
 	private void ConnectSpring(Vertex a, Vertex b, Springs springType)
 	{
-		if (a.neighbors.ContainsKey(b)) return;
+		if (a.Neighbors.ContainsKey(b)) return;
 		
-		var ab = (b.position - a.position).Length();
+		var ab = (b.Position - a.Position).Length();
 		switch (springType)
 		{
 			case Springs.neighbour:
-				a.neighbors.TryAdd(b, ab);
-				b.neighbors.TryAdd(a, ab);
+				a.Neighbors.TryAdd(b, ab);
+				b.Neighbors.TryAdd(a, ab);
 				return;
 			case Springs.shear:
-				a.shear.TryAdd(b, ab);
-				b.shear.TryAdd(a, ab);
+				a.Shear.TryAdd(b, ab);
+				b.Shear.TryAdd(a, ab);
 				return;
 			case Springs.structure:
-				a.structure.TryAdd(b, ab);
-				b.structure.TryAdd(a, ab);
+				a.Structure.TryAdd(b, ab);
+				b.Structure.TryAdd(a, ab);
 				return;
 		}
 		

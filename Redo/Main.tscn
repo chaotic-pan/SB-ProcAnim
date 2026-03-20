@@ -647,8 +647,10 @@ light_indirect_energy = 0.232
 script = ExtResource("3_aersy")
 addedScript = ExtResource("4_504cg")
 MeshMaterial = SubResource("StandardMaterial3D_aersy")
-draw = 3
+draw = 1
+groundCollision = true
 gravity = 0.001
+springConst = 0.5
 
 [node name="A_Lizart" type="Node3D" parent="liz" unique_id=2086008145]
 transform = Transform3D(100, 0, 0, 0, -2.3841858e-05, 99.99999, 0, -99.99999, -2.3841858e-05, 0, 0, 0)
@@ -931,7 +933,7 @@ mesh = SubResource("ArrayMesh_6u3gn")
 skeleton = NodePath("")
 
 [node name="Leg1_L" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=414112435]
-transform = Transform3D(0.12805147, 0.7865861, -0.60405713, 0.9915997, -0.0903359, 0.09257214, 0.018247942, -0.61083674, -0.79154617, 0.0031726458, 0.0038186742, 0.008772543)
+transform = Transform3D(0.1280513, 0.78658605, -0.60405725, 0.99159974, -0.09033566, 0.09257211, 0.018248001, -0.61083674, -0.7915461, 0.0031726458, 0.0038186742, 0.008772543)
 bone_name = "Leg.001.L"
 bone_idx = 14
 
@@ -941,7 +943,7 @@ mesh = SubResource("ArrayMesh_qxngn")
 skeleton = NodePath("")
 
 [node name="Leg2_L" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1947426263]
-transform = Transform3D(-0.9801513, -0.07408887, 0.18388592, -0.19456631, 0.5374711, -0.8205296, -0.038041353, -0.84002125, -0.5412181, 0.008382319, 0.0032203665, 0.004726884)
+transform = Transform3D(-0.9801513, -0.07408878, 0.1838858, -0.19456625, 0.53747106, -0.8205296, -0.038041413, -0.84002125, -0.5412179, 0.008382319, 0.0032203682, 0.004726884)
 bone_name = "Leg.002.L"
 bone_idx = 15
 
@@ -951,7 +953,7 @@ mesh = SubResource("ArrayMesh_wiitp")
 skeleton = NodePath("")
 
 [node name="Foot_L" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=722955363]
-transform = Transform3D(0.9999999, 2.9802322e-08, -8.940697e-08, 1.4901161e-08, -1.0000002, 2.682209e-07, 7.450581e-09, -1.7881393e-07, -0.9999999, 0.007965413, 0.0062447693, 3.259629e-09)
+transform = Transform3D(0.9999998, -4.4703484e-08, -2.0861626e-07, 2.9802322e-08, -1.0000001, 4.7683716e-07, -1.4901161e-08, -3.2782555e-07, -0.99999976, 0.007965414, 0.0062447703, 3.259629e-09)
 bone_name = "Leg.003.L"
 bone_idx = 16
 
@@ -961,7 +963,7 @@ mesh = SubResource("ArrayMesh_y1eow")
 skeleton = NodePath("")
 
 [node name="Leg1_R" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=998536994]
-transform = Transform3D(0.14911692, -0.7881447, 0.5971533, -0.9888163, -0.117273316, 0.09213875, -0.0025885017, -0.60421425, -0.79681754, -0.0031726442, 0.0038186724, 0.008772543)
+transform = Transform3D(0.14911698, -0.7881447, 0.59715325, -0.9888163, -0.11727331, 0.09213872, -0.0025885017, -0.60421413, -0.7968176, -0.0031726442, 0.0038186724, 0.008772543)
 bone_name = "Leg.001.R"
 bone_idx = 18
 
@@ -971,7 +973,7 @@ mesh = SubResource("ArrayMesh_eom2h")
 skeleton = NodePath("")
 
 [node name="Leg2_R" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1279009212]
-transform = Transform3D(-0.9829614, 0.06977686, -0.17005412, 0.18111174, 0.52567947, -0.83118016, 0.031396747, -0.84781647, -0.5293597, -0.008392642, 0.0030419533, 0.004770743)
+transform = Transform3D(-0.9829613, 0.06977707, -0.17005411, 0.1811119, 0.52567947, -0.83118, 0.031396717, -0.84781635, -0.52935976, -0.008392642, 0.0030419533, 0.004770744)
 bone_name = "Leg.002.R"
 bone_idx = 19
 
@@ -981,7 +983,7 @@ mesh = SubResource("ArrayMesh_cdfhp")
 skeleton = NodePath("")
 
 [node name="Foot_R" type="BoneAttachment3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1816665138]
-transform = Transform3D(1.0000004, -8.940697e-08, -2.9802322e-08, -5.9604645e-08, -1.0000008, 2.0861626e-07, -1.4901161e-08, 2.9802322e-08, -1.0000002, -0.008000002, 0.006000003, -4.656613e-10)
+transform = Transform3D(1.0000002, 4.4703484e-08, 1.4156103e-07, 1.4901161e-08, -1.0000008, 5.9604645e-07, 2.2351742e-08, -3.5762787e-07, -1.0000001, -0.008, 0.006000003, 1.3969839e-09)
 bone_name = "Leg.003.R"
 bone_idx = 20
 
@@ -1023,8 +1025,8 @@ skeleton = NodePath("")
 [node name="TwoBoneIK3D" type="TwoBoneIK3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1705439315]
 transform = Transform3D(1.0000001, 0, 0, 0, 1.0000001, -2.842171e-14, 0, 2.842171e-14, 1.0000001, 0, 0, 0)
 setting_count = 2
-settings/0/target_node = NodePath("../../IKFoot_L")
-settings/0/pole_node = NodePath("../../IKFoot_L/MeshInstance3D2")
+settings/0/target_node = NodePath("../IKFoot_L")
+settings/0/pole_node = NodePath("../IKFoot_L/MeshInstance3D2")
 settings/0/root_bone_name = "Leg.001.L"
 settings/0/root_bone = 14
 settings/0/middle_bone_name = "Leg.002.L"
@@ -1034,8 +1036,8 @@ settings/0/end_bone_name = "Leg.003.L"
 settings/0/end_bone = 16
 settings/0/use_virtual_end = false
 settings/0/extend_end_bone = false
-settings/1/target_node = NodePath("../../IKFoot_R")
-settings/1/pole_node = NodePath("../../IKFoot_R/MeshInstance3D2")
+settings/1/target_node = NodePath("../IKFoot_R")
+settings/1/pole_node = NodePath("../IKFoot_R/MeshInstance3D2")
 settings/1/root_bone_name = "Leg.001.R"
 settings/1/root_bone = 18
 settings/1/middle_bone_name = "Leg.002.R"
@@ -1053,12 +1055,12 @@ settings/0/amount = 1.0
 settings/0/apply_bone_name = "Leg.003.L"
 settings/0/apply_bone = 16
 settings/0/reference_type = 1
-settings/0/reference_node = NodePath("../../IKFoot_L")
+settings/0/reference_node = NodePath("../IKFoot_L")
 settings/1/amount = 1.0
 settings/1/apply_bone_name = "Leg.003.R"
 settings/1/apply_bone = 20
 settings/1/reference_type = 1
-settings/1/reference_node = NodePath("../../IKFoot_R")
+settings/1/reference_node = NodePath("../IKFoot_R")
 settings/0/copy = 2
 settings/0/axes = 7
 settings/0/invert = 0
@@ -1068,22 +1070,22 @@ settings/1/axes = 7
 settings/1/invert = 0
 settings/1/additive = false
 
-[node name="IKFoot_L" type="MeshInstance3D" parent="liz/A_Lizart" unique_id=1264349674]
-transform = Transform3D(0.001, 0, 0, 0, -0.001, 8.742279e-11, 0, -8.742279e-11, -0.001, 0.007965415, 0.006244768, 1.4888694e-09)
+[node name="IKFoot_L" type="MeshInstance3D" parent="liz/A_Lizart/Skeleton3D" unique_id=1264349674]
+transform = Transform3D(0.001, 0, 0, 0, -0.001, 8.742279e-11, 0, -8.742279e-11, -0.001, 0.007965415, 0.0062447684, 1.4888695e-09)
 mesh = SubResource("SphereMesh_aersy")
-skeleton = NodePath("../Skeleton3D/TwoBoneIK3D")
+skeleton = NodePath("../TwoBoneIK3D")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="liz/A_Lizart/IKFoot_L" unique_id=1438993490]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="liz/A_Lizart/Skeleton3D/IKFoot_L" unique_id=1438993490]
 transform = Transform3D(0.99999976, 0, 0, 0, -0.99999976, -8.742279e-08, 0, 8.742279e-08, -0.99999976, 4.975981, 5.2615614, -4.094078)
 mesh = SubResource("SphereMesh_aersy")
-skeleton = NodePath("../../Skeleton3D/TwoBoneIK3D")
+skeleton = NodePath("../../TwoBoneIK3D")
 
-[node name="IKFoot_R" type="MeshInstance3D" parent="liz/A_Lizart" unique_id=688294389]
-transform = Transform3D(0.001, 0, 0, 0, -0.001, 8.742279e-11, 0, -8.742279e-11, -0.001, -0.008, 0.0060000005, -1.110223e-16)
+[node name="IKFoot_R" type="MeshInstance3D" parent="liz/A_Lizart/Skeleton3D" unique_id=688294389]
+transform = Transform3D(0.001, 0, 0, 0, -0.001, 8.742279e-11, 0, -8.742279e-11, -0.001, -0.008, 0.0060000014, 0)
 mesh = SubResource("SphereMesh_aersy")
-skeleton = NodePath("../Skeleton3D/TwoBoneIK3D")
+skeleton = NodePath("../TwoBoneIK3D")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="liz/A_Lizart/IKFoot_R" unique_id=579993518]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="liz/A_Lizart/Skeleton3D/IKFoot_R" unique_id=579993518]
 transform = Transform3D(0.99999976, 0, 0, 0, -0.99999976, -8.742279e-08, 0, 8.742279e-08, -0.99999976, -4.976, 5.262, -4.094)
 mesh = SubResource("SphereMesh_aersy")
-skeleton = NodePath("../../Skeleton3D/TwoBoneIK3D")
+skeleton = NodePath("../../TwoBoneIK3D")

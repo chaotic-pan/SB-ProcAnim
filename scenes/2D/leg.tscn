@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://c4qtbwnfuswl0"]
+[gd_scene format=3 uid="uid://c4qtbwnfuswl0"]
 
 [ext_resource type="Script" uid="uid://d1xni05v0yplo" path="res://scripts/2D/Leg.cs" id="1_onwxs"]
 
-[node name="Leg" type="Node2D"]
+[node name="Leg" type="Node2D" unique_id=859050981]
 script = ExtResource("1_onwxs")
 Dis1 = 100.0
 Dis2 = 100.0
