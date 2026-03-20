@@ -31,24 +31,24 @@ public partial class Bug3D: Node3D
         
         var rootPos = skelli.ToGlobal(skelli.GetBoneGlobalPose(0).Origin);
         var rootRot = skelli.ToGlobal(skelli.GetBoneGlobalPose(0).Basis.GetRotationQuaternion().GetEuler());
-        // debug line
-        var cylinder = new CylinderMesh();
-        var n = new Node3D();
-        var node = new MeshInstance3D();
-        node.Mesh = cylinder;
-        var mat = new StandardMaterial3D();
-        mat.AlbedoColor = Colors.Red;
-        node.MaterialOverride = mat;
-        cylinder.BottomRadius = 0.07f;
-        cylinder.TopRadius = 0.02f;
-        cylinder.Height = 1f;
-        parent.AddChild(n);
-        n.AddChild(node);
-        n.Rotation = rootRot;
-        // node.Position = new Vector3(0, 0, -cylinder.Height / 2);
-        n.GlobalPosition = rootPos;
-        n.Scale = Vector3.One/100;
-        debugCylinderLine = n;
+        // debug cylinder
+        //CODE var cylinder = new CylinderMesh();
+        // var n = new Node3D();
+        // var node = new MeshInstance3D();
+        // node.Mesh = cylinder;
+        // var mat = new StandardMaterial3D();
+        // mat.AlbedoColor = Colors.Red;
+        // node.MaterialOverride = mat;
+        // cylinder.BottomRadius = 0.07f;
+        // cylinder.TopRadius = 0.02f;
+        // cylinder.Height = 1f;
+        // parent.AddChild(n);
+        // n.AddChild(node);
+        // n.Rotation = rootRot;
+        // // node.Position = new Vector3(0, 0, -cylinder.Height / 2);
+        // n.GlobalPosition = rootPos;
+        // n.Scale = Vector3.One/100;
+        // debugCylinderLine = n;
         
     }
 

@@ -70,13 +70,14 @@ public partial class RigController : Node3D
 			if(boneIdx == laggingBones.Keys.First()) goalTrans = goalTrans.RotatedLocal(Vector3.Forward, (float)Math.PI);
 			var goalRot = goalTrans.Basis.GetRotationQuaternion().GetEuler();
 
-			// var angle = goalRot - curRot;
-			// var a = angle.X > Math.PI ? 1 : angle.X < -Math.PI ? -1 : 0;
-			// var b = angle.Y > Math.PI ? 1 : angle.Y < -Math.PI ? -1 : 0;
-			// var c = angle.Z > Math.PI ? 1 : angle.Z < -Math.PI ? -1 : 0;
-			//
-			// oldRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
-			// curRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			// PI WRAPPING
+			var angle = goalRot - curRot;
+			var a = angle.X > Math.PI ? 1 : angle.X < -Math.PI ? -1 : 0;
+			var b = angle.Y > Math.PI ? 1 : angle.Y < -Math.PI ? -1 : 0;
+			var c = angle.Z > Math.PI ? 1 : angle.Z < -Math.PI ? -1 : 0;
+			
+			oldRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			curRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
 
 			var newRot = (2*curRot - oldRot + (goalRot-curRot)*(turn/1000f));
 			var dif = newRot - curRot;
@@ -124,7 +125,7 @@ public partial class RigController : Node3D
 		// }
 		#endregion 
 		
-		bugs[0].Update(delta);
+		// bugs[0].Update(delta);
 		
 	}
 }
