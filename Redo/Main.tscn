@@ -647,10 +647,10 @@ light_indirect_energy = 0.232
 script = ExtResource("3_aersy")
 addedScript = ExtResource("4_504cg")
 MeshMaterial = SubResource("StandardMaterial3D_aersy")
-draw = 1
+draw = 3
 groundCollision = true
 gravity = 0.001
-springConst = 0.5
+springConst = 0.3
 
 [node name="A_Lizart" type="Node3D" parent="liz" unique_id=2086008145]
 transform = Transform3D(100, 0, 0, 0, -2.3841858e-05, 99.99999, 0, -99.99999, -2.3841858e-05, 0, 0, 0)

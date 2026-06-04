@@ -76,8 +76,8 @@ public partial class RigController : Node3D
 			var b = angle.Y > Math.PI ? 1 : angle.Y < -Math.PI ? -1 : 0;
 			var c = angle.Z > Math.PI ? 1 : angle.Z < -Math.PI ? -1 : 0;
 			
-			oldRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
-			curRot += new Vector3(a*Single.Tau, b*Single.Tau, c*Single.Tau);
+			oldRot += new Vector3(a*float.Tau, b*float.Tau, c*float.Tau);
+			curRot += new Vector3(a*float.Tau, b*float.Tau, c*float.Tau);
 
 			var newRot = (2*curRot - oldRot + (goalRot-curRot)*(turn/1000f));
 			var dif = newRot - curRot;

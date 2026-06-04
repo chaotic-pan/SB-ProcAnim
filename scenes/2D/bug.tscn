@@ -7,11 +7,12 @@ script = ExtResource("1_g6v7b")
 LegCount = 2
 DistanceUp = 50.0
 DistanceLow = 50.0
-legSpeed = 0.05
+legSpeed = 0.06
 WalkSpeed = 0.5
-StepInterval = 1.0
+StepInterval = 0.8
 KneeBackwards = true
-stepWidth = 10.0
+stepWidth = 40.0
+stepDistance = 0.8
 
 [node name="Label" type="Label" parent="." unique_id=1380665995]
 offset_right = 40.0

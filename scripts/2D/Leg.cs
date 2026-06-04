@@ -17,6 +17,8 @@ public partial class Leg : Node2D
 	[Export] public bool DrawAsMesh;
 	private bool solo = true;
 	private float stepWidth;
+	private float stepDistance;
+	
 	[Signal] public delegate void StartStepEventHandler(int side);
 	[Signal] public delegate void EndStepEventHandler(int side);
 	
@@ -25,7 +27,7 @@ public partial class Leg : Node2D
 	}
 
 	public Leg(Vector2 pinPos, Vector2 orientation, bool kneeBackwards, int side, 
-		float distanceUp, float distanceLow, float speed, float stepWidth, bool drawRanges, bool drawAsMesh)
+		float distanceUp, float distanceLow, float speed, float stepWidth, float stepDistance, bool drawRanges, bool drawAsMesh)
 	{
 		this.pinPos = pinPos;
 		this.orientation = orientation;
@@ -35,14 +37,17 @@ public partial class Leg : Node2D
 		Dis2 = distanceLow;
 		Speed = speed;
 		this.stepWidth = stepWidth; 
+		this.stepDistance = stepDistance; 
 		DrawRanges = drawRanges;
 		DrawAsMesh = drawAsMesh;
 		solo = false;
 		
 		var angle= orientation.Angle() + side*(Math.PI/2);
+		
 		// adjust for Pi wrap
-		if (angle > Math.PI) angle -= 2 * Math.PI;
-		if (angle < -Math.PI) angle += 2 * Math.PI;
+		if (angle > Math.PI) angle -= float.Tau;
+		if (angle < -Math.PI) angle += float.Tau;
+		
 		var direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
 		
 		Init(direction);
@@ -92,7 +97,7 @@ public partial class Leg : Node2D
 
 	public void triggerStep()
 	{
-		footPos = ClampStepPos(pinPos + StepCalc(stepWidth));
+		footPos = ClampStepPos(pinPos + StepCalc(stepWidth)*stepDistance);
 		Recalculate();
 	}
 
@@ -190,7 +195,7 @@ public partial class Leg : Node2D
 			var a = new Vector2(10, 10);
 			var b = new Vector2(-10, 10);
 
-			var stepPos = ClampStepPos(pinPos + StepCalc(stepWidth));
+			var stepPos = ClampStepPos(pinPos + StepCalc(stepWidth)*stepDistance);
 			
 			// reachable area
 			DrawCircle(points[0], Dis1+Dis2, new Color(0.7f,0.8f,1,0.1f), true);

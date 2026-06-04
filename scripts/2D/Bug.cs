@@ -13,6 +13,7 @@ public partial class Bug : Node2D
 	[Export] public bool DrawAsMesh = true;
 	[Export] public bool KneeBackwards;
 	[Export] private float stepWidth;
+	[Export] private float stepDistance;
 	private Vector2 lookPos;
 	private Vector2 lastPos;
 	private Vector2 pos = new(626, 324);
@@ -38,6 +39,7 @@ public partial class Bug : Node2D
 		WalkSpeed = walkSpeed;
 		StepInterval = stepInterval;
 		this.stepWidth = stepWidth;
+		stepDistance = 1;
 		DrawRanges = drawRanges;
 		DrawAsMesh = drawAsMesh;
 		solo = false;
@@ -60,7 +62,7 @@ public partial class Bug : Node2D
 			var side = i % 2 == 0 ? 1 : -1;
 			
 			legs[i] = new Leg(lookPos, orientation, KneeBackwards, side, DistanceUp, DistanceLow, 
-				legSpeed, stepWidth, DrawRanges, DrawAsMesh);
+				legSpeed, stepWidth, stepDistance, DrawRanges, DrawAsMesh);
 			AddChild(legs[i]);
 			// legs[i].StartStep += StopTimers;
 			// legs[i].EndStep += StarTimers;
