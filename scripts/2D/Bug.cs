@@ -16,7 +16,7 @@ public partial class Bug : Node2D
 	[Export] private float stepDistance;
 	private Vector2 lookPos;
 	private Vector2 lastPos;
-	private Vector2 pos = new(626, 324);
+	private Vector2 pos;
 	private Leg[] legs;
 	private Vector2 orientation;
 	private bool solo = true;
@@ -49,7 +49,9 @@ public partial class Bug : Node2D
 	{
 		if (solo)
 		{
-			orientation = new Vector2(1, 1).Normalized();
+			pos = new(626, 324);
+			orientation = new Vector2(-1, -1).Normalized();
+			lookPos = pos - orientation;
 			Init();
 		}
 	}

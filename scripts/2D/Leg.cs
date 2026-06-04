@@ -68,9 +68,8 @@ public partial class Leg : Node2D
 		
 		points[0] = pinPos;
 		points[1] = pinPos+direction*Dis1;
-		points[2] = pinPos+direction*(Dis1+Dis2);
-
-		footPos = pinPos + direction*(Dis1+Dis2)*0.75f;
+		footPos = footPos = ClampStepPos(pinPos + direction*(Dis1+Dis2)*0.75f);
+		points[2] = footPos;
 	}
 	
 	public override void _Process(double delta)
@@ -129,7 +128,7 @@ public partial class Leg : Node2D
 	{
 		points[0] = pinPos;
 
-		// get new footPos when outta range 
+		//TODO get new footPos when outta range 
 		if ((footPos - pinPos).Length() >= (Dis1 + Dis2))
 		{
 			// footPos = ClampStepPos(pinPos + StepCalc(stepWidth));
@@ -139,13 +138,14 @@ public partial class Leg : Node2D
 
 		footPos = ClampStepPos(footPos);
 		// + keep updating til foot reached it 
-		if (step && Math.Abs((points[2] - footPos).Length()) > 5)
+		if (points[2] != footPos)
 		{
-			// EmitSignal(SignalName.EndStep, side);
-			// step = false;
+			var dir = footPos - points[2];
+			var newPos = points[2] + dir.Normalized() * float.Min(dir.Length(), Speed);
+			points[2] = newPos;
 		}
 		
-		var M = CircleIntersections(pinPos, Dis1, footPos, Dis2);
+		var M = CircleIntersections(pinPos, Dis1, points[2], Dis2);
 		if (M.Length == 1) points[1] = M[0];
 		else
 		{
@@ -154,7 +154,6 @@ public partial class Leg : Node2D
 			var d2 = Math.Abs((M[1] - pole).Length());
 			points[1] = d1 <= d2 ? M[0] : M[1];
 		}
-		points[2] = footPos;
 
 	}
 	
