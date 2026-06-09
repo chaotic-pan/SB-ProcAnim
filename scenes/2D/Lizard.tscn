@@ -19,8 +19,8 @@ count = 15
 distance = 30.0
 speed = 1.5
 legCounts = Dictionary[int, int]({
-3: 0,
-8: 0
+3: 2,
+8: 2
 })
 distanceUp = 50.0
 distanceLow = 25.0

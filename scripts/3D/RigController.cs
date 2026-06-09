@@ -125,7 +125,7 @@ public partial class RigController : Node3D
 		// }
 		#endregion 
 		
-		// bugs[0].Update(delta);
+		bugs[0].Update(delta);
 		
 	}
 }

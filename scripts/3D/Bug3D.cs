@@ -32,23 +32,24 @@ public partial class Bug3D: Node3D
         var rootPos = skelli.ToGlobal(skelli.GetBoneGlobalPose(0).Origin);
         var rootRot = skelli.ToGlobal(skelli.GetBoneGlobalPose(0).Basis.GetRotationQuaternion().GetEuler());
         // debug cylinder
-        //CODE var cylinder = new CylinderMesh();
-        // var n = new Node3D();
-        // var node = new MeshInstance3D();
-        // node.Mesh = cylinder;
-        // var mat = new StandardMaterial3D();
-        // mat.AlbedoColor = Colors.Red;
-        // node.MaterialOverride = mat;
-        // cylinder.BottomRadius = 0.07f;
-        // cylinder.TopRadius = 0.02f;
-        // cylinder.Height = 1f;
-        // parent.AddChild(n);
-        // n.AddChild(node);
-        // n.Rotation = rootRot;
-        // // node.Position = new Vector3(0, 0, -cylinder.Height / 2);
-        // n.GlobalPosition = rootPos;
-        // n.Scale = Vector3.One/100;
-        // debugCylinderLine = n;
+        //CODE
+        var cylinder = new CylinderMesh();
+         var n = new Node3D();
+         var node = new MeshInstance3D();
+         node.Mesh = cylinder;
+         var mat = new StandardMaterial3D();
+         mat.AlbedoColor = Colors.Red;
+         node.MaterialOverride = mat;
+         cylinder.BottomRadius = 0.07f;
+         cylinder.TopRadius = 0.02f;
+         cylinder.Height = 1f;
+         parent.AddChild(n);
+         n.AddChild(node);
+         n.Rotation = rootRot;
+         // node.Position = new Vector3(0, 0, -cylinder.Height / 2);
+         n.GlobalPosition = rootPos;
+         n.Scale = Vector3.One/100;
+         debugCylinderLine = n;
         
     }
 
@@ -75,22 +76,23 @@ public partial class Bug3D: Node3D
     {
         var rootPos = skelli.ToGlobal(skelli.GetBoneGlobalPose(0).Origin);
         var rootRot = skelli.GetBonePoseRotation(0).GetEuler();
-                var rot = new Vector3(-rootRot.X,0, -rootRot.Z);
-                // GD.Print(rootRot);
-                // GD.Print(rot);   
+        var rot = new Vector3(rootRot.X,0, rootRot.Z);
+              
         foreach (var leg in legs)
         {
+       
             var upPos = skelli.ToGlobal(skelli.GetBoneGlobalPose(leg.upBoneIdx).Origin); 
             var endPos = leg.IkController.GlobalPosition; 
             var dist = (endPos - upPos).Length();
-            // GD.Print($"{dist} / {leg.reach}");
             if (dist >= leg.reach)
             {
-                // leg.IkController.GlobalPosition = rootPos + leg.restPos;
-                // leg.IkController.GlobalPosition = (rootPos + leg.restPos.Rotated(rot.Normalized(), rot.Length())).Normalized();
+                var forward = -rot*0.2f; 
+                // GD.Print($"{dist} / {leg.reach}");  
+                leg.IkController.GlobalPosition = rootPos + leg.restPos + forward;
             }
         }
         debugCylinderLine.Rotation = rot;
+        debugCylinderLine.GlobalPosition = rootPos;
         
     }
 }
